@@ -42,6 +42,8 @@ export default function Login() {
         password,
         role,
       });
+      // Save JWT token to localStorage
+      localStorage.setItem("token", res.data.token);
       login({ name: res.data.user.name, role: res.data.user.role, email: res.data.user.email });
       // Redirect to role-based dashboard
       if (res.data.user.role === "student") {
@@ -59,6 +61,20 @@ export default function Login() {
       );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Demo login handler
+  const handleDemoLogin = (role) => {
+    // Set a fake token for testing
+    localStorage.setItem("token", "demo-token-for-" + role);
+    login({ name: `${role.charAt(0).toUpperCase() + role.slice(1)} User`, role, email: `${role}@demo.com` });
+    if (role === "student") {
+      navigate("/student-dashboard");
+    } else if (role === "faculty") {
+      navigate("/faculty-dashboard");
+    } else if (role === "admin") {
+      navigate("/admin-dashboard");
     }
   };
 
@@ -202,6 +218,38 @@ export default function Login() {
             </button>
           </div>
         </form>
+        
+        {/* Demo login buttons for testing */}
+        <div className="mt-8">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-3 bg-white text-gray-500 font-medium">Demo Quick Login</span>
+            </div>
+          </div>
+          <div className="mt-6 grid grid-cols-3 gap-3">
+            <button
+              onClick={() => handleDemoLogin("student")}
+              className="flex-1 py-2.5 px-3 rounded-lg font-medium transition-all shadow-sm hover:shadow-md bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"
+            >
+              Student
+            </button>
+            <button
+              onClick={() => handleDemoLogin("faculty")}
+              className="flex-1 py-2.5 px-3 rounded-lg font-medium transition-all shadow-sm hover:shadow-md bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
+            >
+              Faculty
+            </button>
+            <button
+              onClick={() => handleDemoLogin("admin")}
+              className="flex-1 py-2.5 px-3 rounded-lg font-medium transition-all shadow-sm hover:shadow-md bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200"
+            >
+              Admin
+            </button>
+          </div>
+        </div>
         
         <div className="mt-8 text-center text-sm text-gray-500">
           <p>Need an account? <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">Contact your administrator</a></p>
