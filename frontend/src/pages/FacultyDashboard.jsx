@@ -14,15 +14,22 @@ export default function FacultyDashboard() {
   const [attendanceMsg, setAttendanceMsg] = useState('');
   const [resultMsg, setResultMsg] = useState('');
   const [newResult, setNewResult] = useState({ semester: '', cgpa: '', subjects: [{ name: '', grade: '', marks: '' }] });
-  const token = localStorage.getItem('token');
   const [attendanceFilter, setAttendanceFilter] = useState('');
+  const [notices, setNotices] = useState([]);
+  const [newTimetable, setNewTimetable] = useState({ day: '', time: '', subject: '', class: '' });
+  const [headDept, setHeadDept] = useState(null);
+  const token = localStorage.getItem('token');
 
-  // Fetch students and timetable on mount
+  // Fetch students, timetable, and notices on mount
   useEffect(() => {
     axios.get(`${API_URL}/students`, { headers: { authorization: token } })
       .then(res => setStudents(res.data));
     axios.get(`${API_URL}/timetable`, { headers: { authorization: token } })
       .then(res => setTimetable(res.data));
+    axios.get(`${API_URL}/notices`, { headers: { authorization: token } })
+      .then(res => setNotices(res.data));
+    axios.get(`${API_URL}/head-department`, { headers: { authorization: token } })
+      .then(res => setHeadDept(res.data));
   }, [token]);
 
   // Fetch results for selected student
@@ -68,7 +75,7 @@ export default function FacultyDashboard() {
       .then(() => setResults(results.filter(r => r._id !== resultId)));
   };
 
-  // Add subject to new result
+  // Add subject to new result (now on next line)
   const addSubject = () => {
     setNewResult({ ...newResult, subjects: [...newResult.subjects, { name: '', grade: '', marks: '' }] });
   };
@@ -77,6 +84,16 @@ export default function FacultyDashboard() {
   const updateSubject = (idx, field, value) => {
     const updatedSubjects = newResult.subjects.map((s, i) => i === idx ? { ...s, [field]: value } : s);
     setNewResult({ ...newResult, subjects: updatedSubjects });
+  };
+
+  // Add timetable entry
+  const handleAddTimetable = (e) => {
+    e.preventDefault();
+    axios.post(`${API_URL}/timetable`, newTimetable, { headers: { authorization: token } })
+      .then(res => {
+        setTimetable([...timetable, res.data]);
+        setNewTimetable({ day: '', time: '', subject: '', class: '' });
+      });
   };
 
   return (
@@ -105,11 +122,23 @@ export default function FacultyDashboard() {
               <UserGroupIcon className="h-5 w-5 text-purple-500" /> Timetable
             </a>
           </li>
+          <li>
+            <a href="#notices" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-indigo-100 text-gray-700 text-base font-medium transition">
+              <ClipboardDocumentListIcon className="h-5 w-5 text-indigo-500" /> Notices
+            </a>
+          </li>
         </ul>
       </aside>
       {/* Main Content */}
       <main className="flex-1 p-10">
-        <h1 className="text-3xl font-extrabold text-blue-700 mb-8">Welcome, {user?.name || 'Faculty User'}!</h1>
+        <h1 className="text-3xl font-extrabold text-blue-700 mb-8 flex items-center gap-4">
+          Welcome, {user?.name || 'Faculty User'}!
+          {headDept && (
+            <span className="inline-block bg-yellow-100 text-yellow-800 text-sm font-semibold px-4 py-1 rounded-full border border-yellow-300 shadow-sm">
+              Head of Department: {headDept.name}
+            </span>
+          )}
+        </h1>
         {/* Dashboard Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-blue-200">
@@ -198,9 +227,9 @@ export default function FacultyDashboard() {
                   </div>
                   <div>
                     <b>Subjects:</b>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                    <div className="flex flex-col gap-3 mt-2">
                       {newResult.subjects.map((sub, idx) => (
-                        <div key={idx} className="bg-gray-50 p-3 rounded-lg shadow-sm flex flex-col gap-2 relative">
+                        <div key={idx} className="bg-gray-50 p-3 rounded-lg shadow-sm flex flex-col gap-2 relative mt-2">
                           <div className="flex gap-2">
                             <input type="text" placeholder="Name" className="border rounded px-2 py-1 flex-1" value={sub.name} onChange={e => updateSubject(idx, 'name', e.target.value)} required />
                             <input type="text" placeholder="Grade" className="border rounded px-2 py-1 flex-1" value={sub.grade} onChange={e => updateSubject(idx, 'grade', e.target.value)} required />
@@ -221,16 +250,41 @@ export default function FacultyDashboard() {
           </div>
         </section>
         {/* Timetable Section */}
-        <section id="timetable">
+        <section id="timetable" className="mb-10">
           <h2 className="text-xl font-semibold mb-4 text-purple-700 border-l-4 border-purple-400 pl-2">Timetable</h2>
-          <div className="bg-white p-6 rounded-xl shadow">
+          <div className="bg-white p-6 rounded-xl shadow mb-4">
+            <form onSubmit={handleAddTimetable} className="flex flex-wrap gap-2 mb-4">
+              <input type="text" placeholder="Day" className="border rounded px-2 py-1" value={newTimetable.day} onChange={e => setNewTimetable({ ...newTimetable, day: e.target.value })} required />
+              <input type="text" placeholder="Time" className="border rounded px-2 py-1" value={newTimetable.time} onChange={e => setNewTimetable({ ...newTimetable, time: e.target.value })} required />
+              <input type="text" placeholder="Subject" className="border rounded px-2 py-1" value={newTimetable.subject} onChange={e => setNewTimetable({ ...newTimetable, subject: e.target.value })} required />
+              <input type="text" placeholder="Class" className="border rounded px-2 py-1" value={newTimetable.class} onChange={e => setNewTimetable({ ...newTimetable, class: e.target.value })} required />
+              <button type="submit" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 flex items-center gap-1">
+                <PlusCircleIcon className="h-5 w-5" /> Add
+              </button>
+            </form>
             <ul>
               {timetable.map((t, i) => (
                 <li key={i} className="mb-2">
-                  <b>{t.day}:</b> {t.slots.map(slot => `${slot.time} - ${slot.subject} (${slot.class})`).join(', ')}
+                  <b>{t.day}:</b> {t.slots ? t.slots.map(slot => `${slot.time} - ${slot.subject} (${slot.class})`).join(', ') : `${t.time} - ${t.subject} (${t.class})`}
                 </li>
               ))}
             </ul>
+          </div>
+        </section>
+        {/* Notices Section */}
+        <section id="notices" className="mb-10">
+          <h2 className="text-xl font-semibold mb-4 text-indigo-700 border-l-4 border-indigo-400 pl-2">Notices</h2>
+          <div className="bg-white p-6 rounded-xl shadow">
+            {notices.length ? (
+              <ul>
+                {notices.map((n, i) => (
+                  <li key={i} className="mb-2">
+                    <b>{n.title}</b> <span className="text-xs text-gray-500">({new Date(n.date).toLocaleDateString()})</span>
+                    <div>{n.content}</div>
+                  </li>
+                ))}
+              </ul>
+            ) : <p>No notices.</p>}
           </div>
         </section>
       </main>

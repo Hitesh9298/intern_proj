@@ -4,6 +4,8 @@ const Attendance = require('../models/Attendance');
 const Result = require('../models/Result');
 const Timetable = require('../models/Timetable');
 const User = require('../models/User');
+const Notice = require('../models/Notice');
+const Department = require('../models/Department');
 const router = express.Router();
 
 function authMiddleware(req, res, next) {
@@ -69,6 +71,33 @@ router.delete('/results/:resultId', authMiddleware, async (req, res) => {
 router.get('/timetable', authMiddleware, async (req, res) => {
   const timetable = await Timetable.find({ faculty: req.user.id });
   res.json(timetable);
+});
+
+// Add a new timetable entry
+router.post('/timetable', authMiddleware, async (req, res) => {
+  const { day, time, subject, class: className } = req.body;
+  let timetable = await Timetable.findOne({ faculty: req.user.id, day });
+  const slot = { time, subject, class: className };
+  if (timetable) {
+    timetable.slots.push(slot);
+    await timetable.save();
+  } else {
+    timetable = new Timetable({ faculty: req.user.id, day, slots: [slot] });
+    await timetable.save();
+  }
+  res.json(timetable);
+});
+
+// Get notices for faculty
+router.get('/notices', authMiddleware, async (req, res) => {
+  const notices = await Notice.find({ forRole: { $in: ['faculty', 'all'] } }).sort({ date: -1 });
+  res.json(notices);
+});
+
+// Check if faculty is head of any department
+router.get('/head-department', authMiddleware, async (req, res) => {
+  const dept = await Department.findOne({ head: req.user.id });
+  res.json(dept);
 });
 
 module.exports = router;

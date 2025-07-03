@@ -92,7 +92,11 @@ export default function StudentDashboard() {
           <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-green-200">
             <ClipboardDocumentListIcon className="h-8 w-8 text-green-500" />
             <div>
-              <div className="text-2xl font-bold text-green-700">{results[0]?.cgpa ?? "--"}</div>
+              <div className="text-2xl font-bold text-green-700">
+                {results.length
+                  ? (results.reduce((sum, r) => sum + (parseFloat(r.cgpa) || 0), 0) / results.length).toFixed(2)
+                  : "--"}
+              </div>
               <div className="text-gray-500 text-sm">CGPA</div>
             </div>
           </div>
