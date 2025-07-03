@@ -45,9 +45,9 @@ export default function StudentDashboard() {
   if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
 
   return (
-    <div className="flex min-h-[80vh] bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="flex min-h-[80vh] bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg p-6 flex flex-col items-center">
+      <aside className="w-64 bg-white shadow-lg p-6 flex flex-col items-center rounded-r-3xl">
         <AcademicCapIcon className="h-12 w-12 text-blue-600 mb-2" />
         <h2 className="text-xl font-bold mb-2 text-blue-700">Student</h2>
         <div className="mb-6 text-center">
@@ -55,10 +55,26 @@ export default function StudentDashboard() {
           <div className="text-xs text-gray-500">{user?.email}</div>
         </div>
         <ul className="space-y-3 w-full">
-          <li><a href="#attendance" className="block px-4 py-2 rounded hover:bg-blue-100">Attendance</a></li>
-          <li><a href="#results" className="block px-4 py-2 rounded hover:bg-blue-100">Results</a></li>
-          <li><a href="#notices" className="block px-4 py-2 rounded hover:bg-blue-100">Notices</a></li>
-          <li><a href="#fees" className="block px-4 py-2 rounded hover:bg-blue-100">Fees</a></li>
+          <li>
+            <a href="#attendance" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-100 text-gray-700 text-base font-medium transition">
+              <CalendarIcon className="h-5 w-5 text-blue-500" /> Attendance
+            </a>
+          </li>
+          <li>
+            <a href="#results" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-green-100 text-gray-700 text-base font-medium transition">
+              <ClipboardDocumentListIcon className="h-5 w-5 text-green-500" /> Results
+            </a>
+          </li>
+          <li>
+            <a href="#notices" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-purple-100 text-gray-700 text-base font-medium transition">
+              <AcademicCapIcon className="h-5 w-5 text-purple-500" /> Notices
+            </a>
+          </li>
+          <li>
+            <a href="#fees" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-yellow-100 text-gray-700 text-base font-medium transition">
+              <CurrencyDollarIcon className="h-5 w-5 text-yellow-500" /> Fees
+            </a>
+          </li>
         </ul>
       </aside>
       {/* Main Content */}
@@ -66,28 +82,28 @@ export default function StudentDashboard() {
         <h1 className="text-3xl font-extrabold text-blue-700 mb-8">Welcome, {user?.name || "Student"}!</h1>
         {/* Dashboard Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white rounded-lg shadow p-6 flex items-center gap-4">
+          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-blue-200">
             <CalendarIcon className="h-8 w-8 text-blue-500" />
             <div>
               <div className="text-2xl font-bold text-blue-700">{attendance?.percentage ?? "--"}%</div>
               <div className="text-gray-500 text-sm">Attendance</div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6 flex items-center gap-4">
+          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-green-200">
             <ClipboardDocumentListIcon className="h-8 w-8 text-green-500" />
             <div>
               <div className="text-2xl font-bold text-green-700">{results[0]?.cgpa ?? "--"}</div>
               <div className="text-gray-500 text-sm">CGPA</div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6 flex items-center gap-4">
+          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-yellow-200">
             <CurrencyDollarIcon className="h-8 w-8 text-yellow-500" />
             <div>
               <div className="text-2xl font-bold text-yellow-700">{fee?.status ?? "--"}</div>
               <div className="text-gray-500 text-sm">Fees</div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6 flex items-center gap-4">
+          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-purple-200">
             <AcademicCapIcon className="h-8 w-8 text-purple-500" />
             <div>
               <div className="text-2xl font-bold text-purple-700">{notices.length}</div>
@@ -96,9 +112,9 @@ export default function StudentDashboard() {
           </div>
         </div>
         {/* Sections */}
-        <section id="attendance" className="mb-8">
-          <h2 className="text-xl font-semibold mb-2 text-blue-700">Attendance</h2>
-          <div className="bg-white p-6 rounded shadow">
+        <section id="attendance" className="mb-10">
+          <h2 className="text-xl font-semibold mb-4 text-blue-700 border-l-4 border-blue-400 pl-2">Attendance</h2>
+          <div className="bg-white p-6 rounded-xl shadow">
             {attendance ? (
               <div>
                 <p><b>Attended:</b> {attendance.attended} / {attendance.total}</p>
@@ -107,9 +123,9 @@ export default function StudentDashboard() {
             ) : <p>No attendance data.</p>}
           </div>
         </section>
-        <section id="results" className="mb-8">
-          <h2 className="text-xl font-semibold mb-2 text-green-700">Results</h2>
-          <div className="bg-white p-6 rounded shadow">
+        <section id="results" className="mb-10">
+          <h2 className="text-xl font-semibold mb-4 text-green-700 border-l-4 border-green-400 pl-2">Results</h2>
+          <div className="bg-white p-6 rounded-xl shadow">
             {results.length ? results.map((r, i) => (
               <div key={i} className="mb-4">
                 <div className="font-bold">Semester: {r.semester} | CGPA: {r.cgpa}</div>
@@ -122,9 +138,9 @@ export default function StudentDashboard() {
             )) : <p>No results data.</p>}
           </div>
         </section>
-        <section id="notices" className="mb-8">
-          <h2 className="text-xl font-semibold mb-2 text-purple-700">Notices</h2>
-          <div className="bg-white p-6 rounded shadow">
+        <section id="notices" className="mb-10">
+          <h2 className="text-xl font-semibold mb-4 text-purple-700 border-l-4 border-purple-400 pl-2">Notices</h2>
+          <div className="bg-white p-6 rounded-xl shadow">
             {notices.length ? (
               <ul>
                 {notices.map((n, i) => (
@@ -138,8 +154,8 @@ export default function StudentDashboard() {
           </div>
         </section>
         <section id="fees">
-          <h2 className="text-xl font-semibold mb-2 text-yellow-700">Fees</h2>
-          <div className="bg-white p-6 rounded shadow">
+          <h2 className="text-xl font-semibold mb-4 text-yellow-700 border-l-4 border-yellow-400 pl-2">Fees</h2>
+          <div className="bg-white p-6 rounded-xl shadow">
             {fee ? (
               <div>
                 <p><b>Status:</b> {fee.status}</p>

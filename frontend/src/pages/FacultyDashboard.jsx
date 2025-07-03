@@ -90,9 +90,21 @@ export default function FacultyDashboard() {
           <div className="text-xs text-gray-500">{user?.email || 'faculty@college.edu'}</div>
         </div>
         <ul className="space-y-3 w-full">
-          <li><a href="#attendance" className="block px-4 py-2 rounded hover:bg-blue-100">Mark Attendance</a></li>
-          <li><a href="#grades" className="block px-4 py-2 rounded hover:bg-blue-100">Update Grades</a></li>
-          <li><a href="#timetable" className="block px-4 py-2 rounded hover:bg-blue-100">Timetable</a></li>
+          <li>
+            <a href="#attendance" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-100 text-gray-700 text-base font-medium transition">
+              <CalendarIcon className="h-5 w-5 text-blue-500" /> Mark Attendance
+            </a>
+          </li>
+          <li>
+            <a href="#grades" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-green-100 text-gray-700 text-base font-medium transition">
+              <ClipboardDocumentListIcon className="h-5 w-5 text-green-500" /> Update Grades
+            </a>
+          </li>
+          <li>
+            <a href="#timetable" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-purple-100 text-gray-700 text-base font-medium transition">
+              <UserGroupIcon className="h-5 w-5 text-purple-500" /> Timetable
+            </a>
+          </li>
         </ul>
       </aside>
       {/* Main Content */}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { UserGroupIcon, AcademicCapIcon, ClipboardDocumentListIcon, BuildingOffice2Icon, PlusCircleIcon, TrashIcon, PencilIcon, ArrowDownTrayIcon, KeyIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, AcademicCapIcon, ClipboardDocumentListIcon, BuildingOffice2Icon, PlusCircleIcon, TrashIcon, PencilIcon, ArrowDownTrayIcon, KeyIcon, UserIcon } from '@heroicons/react/24/outline';
 
 const API_URL = "http://localhost:5000/api/admin";
 
@@ -19,6 +19,7 @@ export default function AdminDashboard() {
   const [resetUserId, setResetUserId] = useState(null);
   const [resetRole, setResetRole] = useState('');
   const [resetPassword, setResetPassword] = useState('');
+  const [showHeadsPopover, setShowHeadsPopover] = useState(false);
 
   const token = localStorage.getItem('token');
   const headers = { headers: { authorization: token } };
@@ -40,6 +41,7 @@ export default function AdminDashboard() {
     axios.post(`${API_URL}/departments`, newDept, headers).then(() => {
       setNewDept({ name: '' });
       fetchAll();
+      fetchLogs();
     });
   };
   const handleEditDept = e => {
@@ -47,10 +49,14 @@ export default function AdminDashboard() {
     axios.put(`${API_URL}/departments/${editDept._id}`, editDept, headers).then(() => {
       setEditDept(null);
       fetchAll();
+      fetchLogs();
     });
   };
   const handleDeleteDept = id => {
-    axios.delete(`${API_URL}/departments/${id}`, headers).then(fetchAll);
+    axios.delete(`${API_URL}/departments/${id}`, headers).then(() => {
+      fetchAll();
+      fetchLogs();
+    });
   };
 
   // Teacher CRUD
@@ -59,6 +65,7 @@ export default function AdminDashboard() {
     axios.post(`${API_URL}/teachers`, newTeacher, headers).then(() => {
       setNewTeacher({ name: '', email: '', password: '', empid: '', department: '' });
       fetchAll();
+      fetchLogs();
     });
   };
   const handleEditTeacher = e => {
@@ -66,10 +73,14 @@ export default function AdminDashboard() {
     axios.put(`${API_URL}/teachers/${editTeacher._id}`, editTeacher, headers).then(() => {
       setEditTeacher(null);
       fetchAll();
+      fetchLogs();
     });
   };
   const handleDeleteTeacher = id => {
-    axios.delete(`${API_URL}/teachers/${id}`, headers).then(fetchAll);
+    axios.delete(`${API_URL}/teachers/${id}`, headers).then(() => {
+      fetchAll();
+      fetchLogs();
+    });
   };
 
   // Student CRUD
@@ -78,6 +89,7 @@ export default function AdminDashboard() {
     axios.post(`${API_URL}/students`, newStudent, headers).then(() => {
       setNewStudent({ name: '', email: '', password: '', rollno: '', department: '' });
       fetchAll();
+      fetchLogs();
     });
   };
   const handleEditStudent = e => {
@@ -85,10 +97,14 @@ export default function AdminDashboard() {
     axios.put(`${API_URL}/students/${editStudent._id}`, editStudent, headers).then(() => {
       setEditStudent(null);
       fetchAll();
+      fetchLogs();
     });
   };
   const handleDeleteStudent = id => {
-    axios.delete(`${API_URL}/students/${id}`, headers).then(fetchAll);
+    axios.delete(`${API_URL}/students/${id}`, headers).then(() => {
+      fetchAll();
+      fetchLogs();
+    });
   };
 
   const handleResetPassword = (userId, role) => {
@@ -106,6 +122,7 @@ export default function AdminDashboard() {
         setResetUserId(null);
         setResetRole('');
         setResetPassword('');
+        fetchLogs();
       });
   };
 
@@ -123,23 +140,75 @@ export default function AdminDashboard() {
     URL.revokeObjectURL(url);
   };
 
-  const logAction = (action) => {
-    const logs = JSON.parse(localStorage.getItem('adminLogs') || '[]');
-    logs.unshift({ action, time: new Date().toLocaleString() });
-    localStorage.setItem('adminLogs', JSON.stringify(logs));
+  const [logs, setLogs] = useState([]);
+  const fetchLogs = () => {
+    axios.get(`${API_URL}/logs`, headers).then(res => setLogs(res.data));
+  };
+  useEffect(() => { fetchLogs(); }, []);
+
+  // Fees section
+  const [fees, setFees] = useState([]);
+  const [newFee, setNewFee] = useState({ student: '', amount: '', status: 'Unpaid', dueDate: '' });
+  const [editFee, setEditFee] = useState(null);
+
+  const [notices, setNotices] = useState([]);
+  const [newNotice, setNewNotice] = useState({ title: '', content: '', forRole: 'all' });
+  const [editNotice, setEditNotice] = useState(null);
+
+  // Fetch all fees and notices
+  const fetchFees = () => axios.get(`${API_URL}/fees`, headers).then(res => setFees(res.data));
+  const fetchNotices = () => axios.get(`${API_URL}/notices`, headers).then(res => setNotices(res.data));
+
+  // Add, edit, delete handlers for fees
+  const handleAddFee = e => {
+    e.preventDefault();
+    axios.post(`${API_URL}/fees`, newFee, headers).then(() => {
+      setNewFee({ student: '', amount: '', status: 'Unpaid', dueDate: '' });
+      fetchFees();
+    });
+  };
+  const handleEditFee = e => {
+    e.preventDefault();
+    axios.put(`${API_URL}/fees/${editFee._id}`, editFee, headers).then(() => {
+      setEditFee(null);
+      fetchFees();
+    });
+  };
+  const handleDeleteFee = id => {
+    axios.delete(`${API_URL}/fees/${id}`, headers).then(fetchFees);
   };
 
+  // Add, edit, delete handlers for notices
+  const handleAddNotice = e => {
+    e.preventDefault();
+    axios.post(`${API_URL}/notices`, newNotice, headers).then(() => {
+      setNewNotice({ title: '', content: '', forRole: 'all' });
+      fetchNotices();
+    });
+  };
+  const handleEditNotice = e => {
+    e.preventDefault();
+    axios.put(`${API_URL}/notices/${editNotice._id}`, editNotice, headers).then(() => {
+      setEditNotice(null);
+      fetchNotices();
+    });
+  };
+  const handleDeleteNotice = id => {
+    axios.delete(`${API_URL}/notices/${id}`, headers).then(fetchNotices);
+  };
+
+  // In useEffect, also fetch fees and notices
   useEffect(() => {
-    // Example: log when a department is added
-    // logAction('Added department: ' + newDept.name);
+    fetchAll();
+    fetchLogs();
+    fetchFees();
+    fetchNotices();
   }, []);
 
-  const logs = JSON.parse(localStorage.getItem('adminLogs') || '[]');
-
   return (
-    <div className="flex min-h-[80vh] bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="flex min-h-[80vh] bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg p-6 flex flex-col items-center">
+      <aside className="w-64 bg-white shadow-lg p-6 flex flex-col items-center rounded-r-3xl">
         <UserGroupIcon className="h-12 w-12 text-blue-600 mb-2" />
         <h2 className="text-xl font-bold mb-2 text-blue-700">Admin</h2>
         <div className="mb-6 text-center">
@@ -147,10 +216,31 @@ export default function AdminDashboard() {
           <div className="text-xs text-gray-500">admin@college.edu</div>
         </div>
         <ul className="space-y-3 w-full">
-          <li><a href="#departments" className="block px-4 py-2 rounded hover:bg-blue-100">Departments</a></li>
-          <li><a href="#teachers" className="block px-4 py-2 rounded hover:bg-blue-100">Teachers</a></li>
-          <li><a href="#students" className="block px-4 py-2 rounded hover:bg-blue-100">Students</a></li>
-          <li><a href="#reports" className="block px-4 py-2 rounded hover:bg-blue-100">Reports</a></li>
+          <li>
+            <a href="#departments" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-100 text-gray-700 text-base font-medium transition">
+              <BuildingOffice2Icon className="h-5 w-5 text-blue-500" /> Departments
+            </a>
+          </li>
+          <li>
+            <a href="#teachers" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-green-100 text-gray-700 text-base font-medium transition">
+              <AcademicCapIcon className="h-5 w-5 text-green-500" /> Teachers
+            </a>
+          </li>
+          <li>
+            <a href="#students" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-purple-100 text-gray-700 text-base font-medium transition">
+              <UserGroupIcon className="h-5 w-5 text-purple-500" /> Students
+            </a>
+          </li>
+          <li>
+            <a href="#reports" className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-yellow-100 text-gray-700 text-base font-medium transition">
+              <ClipboardDocumentListIcon className="h-5 w-5 text-yellow-500" /> Reports
+            </a>
+          </li>
+          <li>
+            <button type="button" onClick={() => setShowHeadsPopover(true)} className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-blue-50 text-left text-gray-700 text-base font-medium transition">
+              <UserIcon className="h-5 w-5 text-blue-400" /> Head of Departments
+            </button>
+          </li>
         </ul>
       </aside>
       {/* Main Content */}
@@ -158,21 +248,21 @@ export default function AdminDashboard() {
         <h1 className="text-3xl font-extrabold text-blue-700 mb-8">Welcome, Admin User!</h1>
         {/* Dashboard Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white rounded-lg shadow p-6 flex items-center gap-4">
+          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-blue-200">
             <BuildingOffice2Icon className="h-8 w-8 text-blue-500" />
             <div>
               <div className="text-2xl font-bold text-blue-700">{reports.totalDepartments || 0}</div>
               <div className="text-gray-500 text-sm">Departments</div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6 flex items-center gap-4">
+          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-green-200">
             <AcademicCapIcon className="h-8 w-8 text-green-500" />
             <div>
               <div className="text-2xl font-bold text-green-700">{reports.totalTeachers || 0}</div>
               <div className="text-gray-500 text-sm">Teachers</div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6 flex items-center gap-4">
+          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-purple-200">
             <ClipboardDocumentListIcon className="h-8 w-8 text-purple-500" />
             <div>
               <div className="text-2xl font-bold text-purple-700">{reports.totalStudents || 0}</div>
@@ -188,7 +278,7 @@ export default function AdminDashboard() {
               <ArrowDownTrayIcon className="h-4 w-4" /> Export
             </button>
           </h2>
-          <div className="bg-white p-6 rounded shadow mb-4">
+          <div className="bg-white p-6 rounded-xl shadow mb-4">
             <form onSubmit={editDept ? handleEditDept : handleAddDept} className="flex gap-2 mb-4">
               <input type="text" placeholder="Department Name" className="border rounded px-2 py-1 flex-1" value={editDept ? editDept.name : newDept.name} onChange={e => editDept ? setEditDept({ ...editDept, name: e.target.value }) : setNewDept({ ...newDept, name: e.target.value })} required />
               <select
@@ -227,7 +317,7 @@ export default function AdminDashboard() {
               <ArrowDownTrayIcon className="h-4 w-4" /> Export
             </button>
           </h2>
-          <div className="bg-white p-6 rounded shadow mb-4">
+          <div className="bg-white p-6 rounded-xl shadow mb-4">
             <form onSubmit={editTeacher ? handleEditTeacher : handleAddTeacher} className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4">
               <input type="text" placeholder="Name" className="border rounded px-2 py-1" value={editTeacher ? editTeacher.name : newTeacher.name} onChange={e => editTeacher ? setEditTeacher({ ...editTeacher, name: e.target.value }) : setNewTeacher({ ...newTeacher, name: e.target.value })} required />
               <input type="email" placeholder="Email" className="border rounded px-2 py-1" value={editTeacher ? editTeacher.email : newTeacher.email} onChange={e => editTeacher ? setEditTeacher({ ...editTeacher, email: e.target.value }) : setNewTeacher({ ...newTeacher, email: e.target.value })} required />
@@ -261,7 +351,7 @@ export default function AdminDashboard() {
               <ArrowDownTrayIcon className="h-4 w-4" /> Export
             </button>
           </h2>
-          <div className="bg-white p-6 rounded shadow mb-4">
+          <div className="bg-white p-6 rounded-xl shadow mb-4">
             <form onSubmit={editStudent ? handleEditStudent : handleAddStudent} className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4">
               <input type="text" placeholder="Name" className="border rounded px-2 py-1" value={editStudent ? editStudent.name : newStudent.name} onChange={e => editStudent ? setEditStudent({ ...editStudent, name: e.target.value }) : setNewStudent({ ...newStudent, name: e.target.value })} required />
               <input type="email" placeholder="Email" className="border rounded px-2 py-1" value={editStudent ? editStudent.email : newStudent.email} onChange={e => editStudent ? setEditStudent({ ...editStudent, email: e.target.value }) : setNewStudent({ ...newStudent, email: e.target.value })} required />
@@ -287,10 +377,85 @@ export default function AdminDashboard() {
             </ul>
           </div>
         </section>
+        {/* Fees Section */}
+        <section id="fees" className="mb-10">
+          <h2 className="text-xl font-semibold mb-4 text-yellow-700 border-l-4 border-yellow-400 pl-2 flex items-center justify-between">
+            Fees
+            <button onClick={() => exportCSV(fees, 'fees.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 font-semibold shadow transition text-sm">
+              <ArrowDownTrayIcon className="h-4 w-4" /> Export
+            </button>
+          </h2>
+          <div className="bg-white p-6 rounded-xl shadow mb-4">
+            <form onSubmit={editFee ? handleEditFee : handleAddFee} className="flex flex-wrap gap-2 mb-4">
+              <select className="border rounded px-2 py-1" value={editFee ? editFee.student : newFee.student} onChange={e => editFee ? setEditFee({ ...editFee, student: e.target.value }) : setNewFee({ ...newFee, student: e.target.value })} required>
+                <option value="">--Select Student--</option>
+                {students.map(s => <option key={s._id} value={s._id}>{s.name} ({s.rollno})</option>)}
+              </select>
+              <input type="number" placeholder="Amount" className="border rounded px-2 py-1" value={editFee ? editFee.amount : newFee.amount} onChange={e => editFee ? setEditFee({ ...editFee, amount: e.target.value }) : setNewFee({ ...newFee, amount: e.target.value })} required />
+              <select className="border rounded px-2 py-1" value={editFee ? editFee.status : newFee.status} onChange={e => editFee ? setEditFee({ ...editFee, status: e.target.value }) : setNewFee({ ...newFee, status: e.target.value })} required>
+                <option value="Unpaid">Unpaid</option>
+                <option value="Paid">Paid</option>
+                <option value="Partial">Partial</option>
+              </select>
+              <input type="date" placeholder="Due Date" className="border rounded px-2 py-1" value={editFee ? (editFee.dueDate ? editFee.dueDate.substring(0,10) : '') : newFee.dueDate} onChange={e => editFee ? setEditFee({ ...editFee, dueDate: e.target.value }) : setNewFee({ ...newFee, dueDate: e.target.value })} />
+              <button type="submit" className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 flex items-center gap-1">
+                <PlusCircleIcon className="h-5 w-5" /> {editFee ? 'Update' : 'Add'}
+              </button>
+              {editFee && <button type="button" className="ml-2 text-gray-500" onClick={() => setEditFee(null)}>Cancel</button>}
+            </form>
+            <ul>
+              {fees.map(f => (
+                <li key={f._id} className="flex items-center justify-between border-b py-2">
+                  <span>{f.student?.name} ({f.student?.rollno}) - ₹{f.amount} - <b>{f.status}</b> {f.dueDate && `(Due: ${new Date(f.dueDate).toLocaleDateString()})`}</span>
+                  <div className="flex gap-4">
+                    <button className="text-blue-600 flex items-center gap-1 px-2 py-1 rounded hover:bg-blue-50" onClick={() => setEditFee(f)}><PencilIcon className="h-4 w-4" />Edit</button>
+                    <button className="text-red-600 flex items-center gap-1 px-2 py-1 rounded hover:bg-red-50" onClick={() => handleDeleteFee(f._id)}><TrashIcon className="h-4 w-4" />Delete</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+        {/* Notices Section */}
+        <section id="notices" className="mb-10">
+          <h2 className="text-xl font-semibold mb-4 text-indigo-700 border-l-4 border-indigo-400 pl-2 flex items-center justify-between">
+            Notices
+            <button onClick={() => exportCSV(notices, 'notices.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 font-semibold shadow transition text-sm">
+              <ArrowDownTrayIcon className="h-4 w-4" /> Export
+            </button>
+          </h2>
+          <div className="bg-white p-6 rounded-xl shadow mb-4">
+            <form onSubmit={editNotice ? handleEditNotice : handleAddNotice} className="flex flex-wrap gap-2 mb-4">
+              <input type="text" placeholder="Title" className="border rounded px-2 py-1" value={editNotice ? editNotice.title : newNotice.title} onChange={e => editNotice ? setEditNotice({ ...editNotice, title: e.target.value }) : setNewNotice({ ...newNotice, title: e.target.value })} required />
+              <input type="text" placeholder="Content" className="border rounded px-2 py-1" value={editNotice ? editNotice.content : newNotice.content} onChange={e => editNotice ? setEditNotice({ ...editNotice, content: e.target.value }) : setNewNotice({ ...newNotice, content: e.target.value })} required />
+              <select className="border rounded px-2 py-1" value={editNotice ? editNotice.forRole : newNotice.forRole} onChange={e => editNotice ? setEditNotice({ ...editNotice, forRole: e.target.value }) : setNewNotice({ ...newNotice, forRole: e.target.value })} required>
+                <option value="all">All</option>
+                <option value="student">Students</option>
+                <option value="faculty">Faculty</option>
+                <option value="admin">Admins</option>
+              </select>
+              <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 flex items-center gap-1">
+                <PlusCircleIcon className="h-5 w-5" /> {editNotice ? 'Update' : 'Add'}
+              </button>
+              {editNotice && <button type="button" className="ml-2 text-gray-500" onClick={() => setEditNotice(null)}>Cancel</button>}
+            </form>
+            <ul>
+              {notices.map(n => (
+                <li key={n._id} className="flex items-center justify-between border-b py-2">
+                  <span><b>{n.title}</b> - {n.content} <span className="text-xs text-gray-500">({n.forRole})</span></span>
+                  <div className="flex gap-4">
+                    <button className="text-blue-600 flex items-center gap-1 px-2 py-1 rounded hover:bg-blue-50" onClick={() => setEditNotice(n)}><PencilIcon className="h-4 w-4" />Edit</button>
+                    <button className="text-red-600 flex items-center gap-1 px-2 py-1 rounded hover:bg-red-50" onClick={() => handleDeleteNotice(n._id)}><TrashIcon className="h-4 w-4" />Delete</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
         {/* Reports Section */}
         <section id="reports">
           <h2 className="text-xl font-semibold mb-4 text-yellow-700 border-l-4 border-yellow-400 pl-2">Reports</h2>
-          <div className="bg-white p-6 rounded shadow">
+          <div className="bg-white p-6 rounded-xl shadow">
             <ul>
               <li>Total Departments: <b>{reports.totalDepartments || 0}</b></li>
               <li>Total Teachers: <b>{reports.totalTeachers || 0}</b></li>
@@ -301,10 +466,13 @@ export default function AdminDashboard() {
         {/* Activity Logs Section */}
         <section id="logs">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 border-l-4 border-gray-400 pl-2">Activity Logs</h2>
-          <div className="bg-white p-6 rounded shadow">
+          <div className="bg-white p-6 rounded-xl shadow">
             <ul>
+              {logs.length === 0 && <li className="text-gray-400">No activity logs yet.</li>}
               {logs.map((log, i) => (
-                <li key={i}>{log.time}: {log.action}</li>
+                <li key={i}>
+                  {new Date(log.time).toLocaleString()}: {log.action} {log.admin && `by ${log.admin.name}`}
+                </li>
               ))}
             </ul>
           </div>
@@ -325,6 +493,27 @@ export default function AdminDashboard() {
                 <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={() => setShowResetModal(false)}>Cancel</button>
                 <button className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600" onClick={submitResetPassword}>Reset</button>
               </div>
+            </div>
+          </div>
+        )}
+        {/* Head of Departments Popover/Modal */}
+        {showHeadsPopover && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+              <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl" onClick={() => setShowHeadsPopover(false)}>&times;</button>
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><UserIcon className="h-5 w-5 text-blue-500" />Head of Departments</h3>
+              <ul>
+                {departments.filter(d => d.head && d.head.name).length === 0 && (
+                  <li className="text-gray-500">No department heads assigned.</li>
+                )}
+                {departments.filter(d => d.head && d.head.name).map((d, i) => (
+                  <li key={i} className="mb-2 flex items-center gap-2">
+                    <UserIcon className="h-4 w-4 text-blue-400" />
+                    <span className="font-semibold text-blue-700">{d.head.name}</span>
+                    <span className="text-gray-500">({d.name})</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         )}
