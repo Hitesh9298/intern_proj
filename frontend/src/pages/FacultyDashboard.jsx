@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { UserGroupIcon, CalendarIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, CalendarIcon, ClipboardDocumentListIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../components/AuthContext';
 
 const API_URL = "http://localhost:5000/api/faculty";
@@ -15,6 +15,7 @@ export default function FacultyDashboard() {
   const [resultMsg, setResultMsg] = useState('');
   const [newResult, setNewResult] = useState({ semester: '', cgpa: '', subjects: [{ name: '', grade: '', marks: '' }] });
   const token = localStorage.getItem('token');
+  const [attendanceFilter, setAttendanceFilter] = useState('');
 
   // Fetch students and timetable on mount
   useEffect(() => {
@@ -125,13 +126,23 @@ export default function FacultyDashboard() {
         <section id="attendance" className="mb-10">
           <h2 className="text-xl font-semibold mb-4 text-blue-700 border-l-4 border-blue-400 pl-2">Mark Attendance</h2>
           <div className="bg-white p-6 rounded-xl shadow">
+            <input
+              type="text"
+              placeholder="Search student by name or roll no..."
+              className="mb-4 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
+              value={attendanceFilter}
+              onChange={e => setAttendanceFilter(e.target.value)}
+            />
             <ul className="divide-y divide-gray-100">
-              {students.map(s => (
+              {students.filter(s =>
+                s.name.toLowerCase().includes(attendanceFilter.toLowerCase()) ||
+                (s.rollno && s.rollno.toLowerCase().includes(attendanceFilter.toLowerCase()))
+              ).map(s => (
                 <li key={s._id} className="py-3 flex items-center justify-between">
                   <span className="font-medium text-gray-700">{s.name} <span className="text-xs text-gray-400">({s.rollno})</span></span>
-                  <div>
-                    <button className="ml-2 px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 shadow-sm" onClick={() => markAttendance(s._id, true)}>Present</button>
-                    <button className="ml-2 px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 shadow-sm" onClick={() => markAttendance(s._id, false)}>Absent</button>
+                  <div className="flex gap-2">
+                    <button className="px-4 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 shadow-sm font-semibold transition" onClick={() => markAttendance(s._id, true)}>Present</button>
+                    <button className="px-4 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 shadow-sm font-semibold transition" onClick={() => markAttendance(s._id, false)}>Absent</button>
                   </div>
                 </li>
               ))}
@@ -164,7 +175,7 @@ export default function FacultyDashboard() {
                           <li key={i}>{sub.name}: {sub.grade} ({sub.marks} marks)</li>
                         ))}
                       </ul>
-                      <button className="text-red-600 text-xs mt-1" onClick={() => handleDeleteResult(r._id)}>Delete</button>
+                      <button className="text-red-600 text-xs mt-1 flex items-center gap-1" onClick={() => handleDeleteResult(r._id)}><TrashIcon className="h-4 w-4" />Delete</button>
                     </li>
                   ))}
                 </ul>
@@ -175,16 +186,22 @@ export default function FacultyDashboard() {
                   </div>
                   <div>
                     <b>Subjects:</b>
-                    {newResult.subjects.map((sub, idx) => (
-                      <div key={idx} className="flex gap-2 mt-1">
-                        <input type="text" placeholder="Name" className="border rounded px-2 py-1 flex-1" value={sub.name} onChange={e => updateSubject(idx, 'name', e.target.value)} required />
-                        <input type="text" placeholder="Grade" className="border rounded px-2 py-1 flex-1" value={sub.grade} onChange={e => updateSubject(idx, 'grade', e.target.value)} required />
-                        <input type="number" placeholder="Marks" className="border rounded px-2 py-1 flex-1" value={sub.marks} onChange={e => updateSubject(idx, 'marks', e.target.value)} required />
-                      </div>
-                    ))}
-                    <button type="button" className="mt-2 px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200" onClick={addSubject}>Add Subject</button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                      {newResult.subjects.map((sub, idx) => (
+                        <div key={idx} className="bg-gray-50 p-3 rounded-lg shadow-sm flex flex-col gap-2 relative">
+                          <div className="flex gap-2">
+                            <input type="text" placeholder="Name" className="border rounded px-2 py-1 flex-1" value={sub.name} onChange={e => updateSubject(idx, 'name', e.target.value)} required />
+                            <input type="text" placeholder="Grade" className="border rounded px-2 py-1 flex-1" value={sub.grade} onChange={e => updateSubject(idx, 'grade', e.target.value)} required />
+                            <input type="number" placeholder="Marks" className="border rounded px-2 py-1 flex-1" value={sub.marks} onChange={e => updateSubject(idx, 'marks', e.target.value)} required />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button type="button" className="mt-4 flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-semibold shadow transition" onClick={addSubject}>
+                      <PlusCircleIcon className="h-5 w-5" /> Add Subject
+                    </button>
                   </div>
-                  <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded mt-2 hover:bg-blue-700">Save Result</button>
+                  <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded mt-2 hover:bg-blue-700 font-semibold">Save Result</button>
                 </form>
                 {resultMsg && <div className="text-green-600 mt-2">{resultMsg}</div>}
               </div>
