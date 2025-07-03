@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../components/AuthContext";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const roles = [
   { value: "student", label: "Student" },
@@ -7,8 +9,11 @@ const roles = [
   { value: "admin", label: "Admin" },
 ];
 
+const API_URL = "http://localhost:5000/api/auth"; // Change port if needed
+
 export default function Login() {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("student");
@@ -32,17 +37,29 @@ export default function Login() {
 
     try {
       setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      login({ name: email.split("@")[0] || "User", role });
+      const res = await axios.post(`${API_URL}/login`, {
+        email,
+        password,
+        role,
+      });
+      login({ name: res.data.user.name, role: res.data.user.role, email: res.data.user.email });
+      // Redirect to role-based dashboard
+      if (res.data.user.role === "student") {
+        navigate("/student-dashboard");
+      } else if (res.data.user.role === "faculty") {
+        navigate("/faculty-dashboard");
+      } else if (res.data.user.role === "admin") {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
-      setError("Login failed. Please try again.");
+      setError(
+        err.response?.data?.error || "Login failed. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleQuickLogin = (role) => {
-    login({ name: `${role.label} User`, role: role.value });
   };
 
   return (
@@ -185,29 +202,6 @@ export default function Login() {
             </button>
           </div>
         </form>
-        
-        <div className="mt-8">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-white text-gray-500 font-medium">Quick Access</span>
-            </div>
-          </div>
-          
-          <div className="mt-6 grid grid-cols-3 gap-3">
-            {roles.map((r) => (
-              <button
-                key={r.value}
-                onClick={() => handleQuickLogin(r)}
-                className={`flex-1 py-2.5 px-3 rounded-lg font-medium transition-all shadow-sm hover:shadow-md ${r.value === "student" ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200' : r.value === "faculty" ? 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200' : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200'}`}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
-        </div>
         
         <div className="mt-8 text-center text-sm text-gray-500">
           <p>Need an account? <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">Contact your administrator</a></p>

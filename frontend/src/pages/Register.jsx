@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 
 const roles = [
   { value: "student", label: "Student" },
@@ -17,6 +18,8 @@ const departments = [
   "Other",
 ];
 
+const API_URL = "http://localhost:5000/api/auth"; // Change port if needed
+
 export default function Register() {
   const [form, setForm] = useState({
     name: "",
@@ -32,9 +35,17 @@ export default function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Registration submitted! (Demo only)\n" + JSON.stringify(form, null, 2));
+    try {
+      await axios.post(`${API_URL}/register`, form);
+      alert("Registration successful! You can now log in.");
+      window.location.href = "/login";
+    } catch (err) {
+      alert(
+        err.response?.data?.error || "Registration failed. Please try again."
+      );
+    }
   };
 
   return (
