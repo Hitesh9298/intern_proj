@@ -44,7 +44,7 @@ export default function Login() {
       });
       // Save JWT token to localStorage
       localStorage.setItem("token", res.data.token);
-      login({ name: res.data.user.name, role: res.data.user.role, email: res.data.user.email });
+      login(res.data.user);
       // Redirect to role-based dashboard
       if (res.data.user.role === "student") {
         navigate("/student-dashboard");
