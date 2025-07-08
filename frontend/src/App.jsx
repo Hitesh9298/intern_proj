@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import StudentDashboard from "./pages/StudentDashboard";
 import FacultyDashboard from "./pages/FacultyDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
 import { AuthProvider, useAuth } from "./components/AuthContext";
 
 function ProtectedRoute({ children, role }) {
@@ -37,6 +38,7 @@ function AppRoutes() {
       <Route path="/admin-dashboard" element={
         <ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>
       } />
+      <Route path="/profile" element={<Profile />} />
       <Route path="*" element={<Navigate to={user ? `/${user.role}-dashboard` : "/"} />} />
     </Routes>
   );
@@ -53,6 +55,7 @@ function Navbar() {
           {!user && <Link to="/login">Login</Link>}
           {!user && <Link to="/register">Register</Link>}
           {user && <Link to={`/${user.role}-dashboard`}>Dashboard</Link>}
+          {user && <Link to="/profile">Profile</Link>}
           {user && <button onClick={logout} className="text-red-500">Logout</button>}
         </div>
       </div>

@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   rollno: { type: String }, // Only for students
   empid: { type: String },  // Only for faculty/admin
   department: { type: String },
+  profileImage: { type: String }, 
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
