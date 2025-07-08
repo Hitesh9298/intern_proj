@@ -6,6 +6,7 @@ const ActivityLog = require('../models/ActivityLog');
 const jwt = require('jsonwebtoken');
 const Fee = require('../models/Fee');
 const Notice = require('../models/Notice');
+const Notification = require('../models/Notification');
 const router = express.Router();
 
 // --- Auth Middleware ---
@@ -112,11 +113,31 @@ router.get('/fees', async (req, res) => {
 router.post('/fees', async (req, res) => {
   const fee = new Fee(req.body);
   await fee.save();
+  // Notify the student
+  if (fee.student) {
+    const notif = new Notification({
+      user: fee.student,
+      title: 'New Fee Assigned',
+      message: `A new fee has been assigned. Amount: Rs. ${fee.amount || ''}`,
+      link: '/fees',
+    });
+    await notif.save();
+  }
   res.json(fee);
 });
 // Update fee
 router.put('/fees/:id', async (req, res) => {
   const fee = await Fee.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  // Notify the student
+  if (fee.student) {
+    const notif = new Notification({
+      user: fee.student,
+      title: 'Fee Updated',
+      message: `Your fee details have been updated. Amount: Rs. ${fee.amount || ''}`,
+      link: '/fees',
+    });
+    await notif.save();
+  }
   res.json(fee);
 });
 // Delete fee
@@ -135,11 +156,45 @@ router.get('/notices', async (req, res) => {
 router.post('/notices', async (req, res) => {
   const notice = new Notice(req.body);
   await notice.save();
+  // Notify users based on forRole
+  let notif;
+  if (notice.forRole === 'all') {
+    notif = new Notification({
+      title: 'New Notice',
+      message: notice.title || 'A new notice has been published.',
+      link: '/notices',
+    });
+  } else {
+    notif = new Notification({
+      role: notice.forRole,
+      title: 'New Notice',
+      message: notice.title || 'A new notice has been published.',
+      link: '/notices',
+    });
+  }
+  await notif.save();
   res.json(notice);
 });
 // Update notice
 router.put('/notices/:id', async (req, res) => {
   const notice = await Notice.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  // Notify users based on forRole
+  let notif;
+  if (notice.forRole === 'all') {
+    notif = new Notification({
+      title: 'Notice Updated',
+      message: notice.title || 'A notice has been updated.',
+      link: '/notices',
+    });
+  } else {
+    notif = new Notification({
+      role: notice.forRole,
+      title: 'Notice Updated',
+      message: notice.title || 'A notice has been updated.',
+      link: '/notices',
+    });
+  }
+  await notif.save();
   res.json(notice);
 });
 // Delete notice

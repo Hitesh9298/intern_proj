@@ -30,7 +30,7 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    const userObj = { name: user.name, email: user.email, role: user.role };
+    const userObj = { _id: user._id, name: user.name, email: user.email, role: user.role };
     if (user.role === 'student') userObj.rollno = user.rollno;
     if (user.role === 'faculty' || user.role === 'admin') userObj.empid = user.empid;
     userObj.department = user.department;

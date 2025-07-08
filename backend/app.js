@@ -6,12 +6,14 @@ require('./models/Attendance');
 require('./models/Result');
 require('./models/Notice');
 require('./models/Fee');
+require('./models/Notification');
 
 const authRoutes = require('./routes/auth');
 const studentRoutes = require('./routes/student');
 const facultyRoutes = require('./routes/faculty');
 const adminRoutes = require('./routes/admin');
 const profileRoutes = require('./routes/profile');
+const notificationRoutes = require('./routes/notification');
 
 const app = express();
 app.use(cors());
@@ -23,6 +25,7 @@ app.use('/api/student', studentRoutes);
 app.use('/api/faculty', facultyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Example route
 app.get('/', (req, res) => {

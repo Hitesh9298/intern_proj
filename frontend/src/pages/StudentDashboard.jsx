@@ -49,6 +49,23 @@ export default function StudentDashboard() {
     fetchData();
   }, []);
 
+  // Scroll to section if hash is present in URL
+  useEffect(() => {
+    function scrollToHash() {
+      if (window.location.hash) {
+        const el = document.getElementById(window.location.hash.substring(1));
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }
+    if (!loading) {
+      scrollToHash();
+    }
+    window.addEventListener('hashchange', scrollToHash);
+    return () => window.removeEventListener('hashchange', scrollToHash);
+  }, [loading]);
+
   // Helper: get latest semester result
   const latestResult = results.length ? results[results.length - 1] : null;
   const overallCGPA = results.length

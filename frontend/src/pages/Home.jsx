@@ -39,7 +39,7 @@ export default function Home() {
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 opacity-90"></div>
-        <div className="relative max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
+        <div className="relative max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="inline-flex items-center justify-center bg-white rounded-full p-4 shadow-lg mb-6">
               <AcademicCapIcon className="h-12 w-12 text-blue-600" />
@@ -71,7 +71,7 @@ export default function Home() {
       </div>
 
       {/* Features Section */}
-      <div className="py-16 sm:py-24 lg:py-32 bg-white">
+      <div className="py-8 sm:py-12 lg:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">

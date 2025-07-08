@@ -16,6 +16,10 @@ import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider, useAuth } from "./components/AuthContext";
+import NotificationBell from './components/NotificationBell';
+import { NotificationProvider } from './components/NotificationContext';
+import defaultAvatar from "./assets/default-avatar.png";
+import { useState } from "react";
 
 function ProtectedRoute({ children, role }) {
   const { user } = useAuth();
@@ -50,32 +54,102 @@ function AppRoutes() {
 
 function Navbar() {
   const { user, logout } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const avatarUrl = user?.profileImage || defaultAvatar;
   return (
-    <nav className="bg-white shadow mb-8">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold text-blue-600">ERP Lite</Link>
-        <div className="space-x-4">
-          <Link to="/">Home</Link>
-          {!user && <Link to="/login">Login</Link>}
-          {!user && <Link to="/register">Register</Link>}
-          {user && <Link to={`/${user.role}-dashboard`}>Dashboard</Link>}
-          {user && <Link to="/profile">Profile</Link>}
-          {user && <button onClick={logout} className="text-red-500">Logout</button>}
+    <>
+      {/* Branding bar */}
+      <div className="h-1 bg-gradient-to-r from-blue-500 via-blue-400 to-purple-400 w-full" />
+      <nav className="bg-white shadow-lg rounded-b-2xl mb-0 px-4 py-3 transition-all duration-300" style={{ boxShadow: '0 4px 24px 0 rgba(80, 112, 255, 0.07)' }}>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link to="/" className="text-2xl font-bold text-blue-600 hover:text-blue-800 transition">ERP Lite</Link>
+          {/* Hamburger for mobile */}
+          <button
+            className="md:hidden flex flex-col justify-center items-center w-10 h-10 focus:outline-none"
+            onClick={() => setMenuOpen(m => !m)}
+            aria-label="Toggle menu"
+          >
+            <span className={`block w-6 h-0.5 bg-blue-600 mb-1 transition-transform ${menuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
+            <span className={`block w-6 h-0.5 bg-blue-600 mb-1 ${menuOpen ? 'opacity-0' : ''}`}></span>
+            <span className={`block w-6 h-0.5 bg-blue-600 transition-transform ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+          </button>
+          {/* Desktop menu */}
+          <div className="hidden md:flex items-center gap-6">
+            <Link to="/" className="hover:text-blue-600 font-medium transition">Home</Link>
+            {!user && <Link to="/login" className="hover:text-blue-600 font-medium transition">Login</Link>}
+            {!user && <Link to="/register" className="hover:text-blue-600 font-medium transition">Register</Link>}
+            {user && <Link to={`/${user.role}-dashboard`} className="hover:text-blue-600 font-medium transition">Dashboard</Link>}
+            <div className="flex items-center gap-4 ml-2">
+              {user && (
+                <Link to="/profile" className="hover:text-blue-600 font-medium transition flex items-center gap-2">
+                  <img
+                    src={avatarUrl}
+                    alt="avatar"
+                    className="w-8 h-8 rounded-full border border-blue-200 shadow-sm object-cover"
+                  />
+                  Profile
+                </Link>
+              )}
+              {user && <NotificationBell />}
+            </div>
+            {user && (
+              <button
+                onClick={logout}
+                className="ml-2 px-4 py-1 bg-red-50 text-red-500 rounded-lg font-medium hover:bg-red-100 transition border border-red-100 shadow-sm"
+              >
+                Logout
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+        {/* Mobile menu dropdown */}
+        {menuOpen && (
+          <div className="md:hidden flex flex-col gap-4 mt-4 bg-white rounded-xl shadow-lg p-4 border border-blue-100 animate-fade-in-up">
+            <Link to="/" className="hover:text-blue-600 font-medium transition" onClick={() => setMenuOpen(false)}>Home</Link>
+            {!user && <Link to="/login" className="hover:text-blue-600 font-medium transition" onClick={() => setMenuOpen(false)}>Login</Link>}
+            {!user && <Link to="/register" className="hover:text-blue-600 font-medium transition" onClick={() => setMenuOpen(false)}>Register</Link>}
+            {user && <Link to={`/${user.role}-dashboard`} className="hover:text-blue-600 font-medium transition" onClick={() => setMenuOpen(false)}>Dashboard</Link>}
+            {user && (
+              <Link to="/profile" className="hover:text-blue-600 font-medium transition flex items-center gap-2" onClick={() => setMenuOpen(false)}>
+                <img
+                  src={avatarUrl}
+                  alt="avatar"
+                  className="w-8 h-8 rounded-full border border-blue-200 shadow-sm object-cover"
+                />
+                Profile
+              </Link>
+            )}
+            {user && <div className="mt-2"><NotificationBell /></div>}
+            {user && (
+              <button
+                onClick={() => { setMenuOpen(false); logout(); }}
+                className="mt-2 px-4 py-1 bg-red-50 text-red-500 rounded-lg font-medium hover:bg-red-100 transition border border-red-100 shadow-sm w-full text-left"
+              >
+                Logout
+              </button>
+            )}
+          </div>
+        )}
+      </nav>
+    </>
   );
 }
 
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          <AppRoutes />
-        </div>
-      </Router>
+      <NotificationProvider>
+        <Router>
+          <div className="min-h-screen bg-gray-50">
+            <Navbar />
+            {/* Smooth, thin separator line below navbar */}
+            <div className="h-0.5 w-full bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 opacity-80 blur-[1.5px]" style={{ boxShadow: '0 2px 8px 0 rgba(80,112,255,0.08)' }} />
+            <div className="w-full">
+              <AppRoutes />
+            </div>
+          </div>
+        </Router>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

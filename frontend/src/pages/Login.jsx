@@ -44,7 +44,7 @@ export default function Login() {
       });
       // Save JWT token to localStorage
       localStorage.setItem("token", res.data.token);
-      login(res.data.user);
+      login({ ...res.data.user, role: res.data.user.role.toLowerCase() });
       // Redirect to role-based dashboard
       if (res.data.user.role === "student") {
         navigate("/student-dashboard");
@@ -68,7 +68,7 @@ export default function Login() {
   const handleDemoLogin = (role) => {
     // Set a fake token for testing
     localStorage.setItem("token", "demo-token-for-" + role);
-    login({ name: `${role.charAt(0).toUpperCase() + role.slice(1)} User`, role, email: `${role}@demo.com` });
+    login({ name: `${role.charAt(0).toUpperCase() + role.slice(1)} User`, role: role.toLowerCase(), email: `${role}@demo.com` });
     if (role === "student") {
       navigate("/student-dashboard");
     } else if (role === "faculty") {
