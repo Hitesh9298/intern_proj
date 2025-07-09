@@ -53,8 +53,8 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl animate-fade-in-up">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 p-4">
+      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl border-t-8 border-blue-200 animate-fade-in-up">
         <div className="text-center mb-8">
           <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
             <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

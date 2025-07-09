@@ -10,18 +10,18 @@ export function useNotifications() {
 
 export function NotificationProvider({ children }) {
   const { user } = useAuth();
-  console.log('NotificationProvider user:', user);
+  // console.log('NotificationProvider user:', user);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // Fetch notifications when user changes
   useEffect(() => {
     if (user?._id) {
-      console.log('Fetching notifications for user:', user);
+      // console.log('Fetching notifications for user:', user);
       setLoading(true);
       axios.get(`http://localhost:5000/api/notifications/${user._id}`)
         .then(res => {
-          console.log('Fetched notifications:', res.data);
+          // console.log('Fetched notifications:', res.data);
           setNotifications(res.data)
         })
         .finally(() => setLoading(false));

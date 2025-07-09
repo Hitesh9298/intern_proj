@@ -20,6 +20,7 @@ import NotificationBell from './components/NotificationBell';
 import { NotificationProvider } from './components/NotificationContext';
 import defaultAvatar from "./assets/default-avatar.png";
 import { useState } from "react";
+import { UserGroupIcon } from '@heroicons/react/24/outline';
 
 function ProtectedRoute({ children, role }) {
   const { user } = useAuth();
@@ -65,13 +66,11 @@ function Navbar() {
           <Link to="/" className="text-2xl font-bold text-blue-600 hover:text-blue-800 transition">ERP Lite</Link>
           {/* Hamburger for mobile */}
           <button
-            className="md:hidden flex flex-col justify-center items-center w-10 h-10 focus:outline-none"
+            className="md:hidden flex justify-center items-center w-10 h-10 focus:outline-none"
             onClick={() => setMenuOpen(m => !m)}
             aria-label="Toggle menu"
           >
-            <span className={`block w-6 h-0.5 bg-blue-600 mb-1 transition-transform ${menuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-            <span className={`block w-6 h-0.5 bg-blue-600 mb-1 ${menuOpen ? 'opacity-0' : ''}`}></span>
-            <span className={`block w-6 h-0.5 bg-blue-600 transition-transform ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+            <UserGroupIcon className="h-7 w-7 text-blue-700" />
           </button>
           {/* Desktop menu */}
           <div className="hidden md:flex items-center gap-6">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { UserGroupIcon, CalendarIcon, ClipboardDocumentListIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, CalendarIcon, ClipboardDocumentListIcon, PlusCircleIcon, TrashIcon, Bars3Icon, XMarkIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../components/AuthContext';
 
 const API_URL = "http://localhost:5000/api/faculty";
@@ -19,6 +19,7 @@ export default function FacultyDashboard() {
   const [newTimetable, setNewTimetable] = useState({ day: '', time: '', subject: '', class: '' });
   const [headDept, setHeadDept] = useState(null);
   const token = localStorage.getItem('token');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fetch students, timetable, and notices on mount
   useEffect(() => {
@@ -97,10 +98,44 @@ export default function FacultyDashboard() {
   };
 
   return (
-    <div className="flex min-h-[80vh] bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100">
+    <div className="flex min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100">
+      {/* Hamburger or Arrow for mobile */}
+      {!sidebarOpen ? (
+        <button
+          className="md:hidden fixed top-4 left-4 z-30 bg-white p-2 rounded-full shadow-lg border border-blue-100"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open sidebar"
+        >
+          <Bars3Icon className="h-7 w-7 text-blue-700" />
+        </button>
+      ) : (
+        <button
+          className="md:hidden fixed top-4 left-4 z-40 bg-white p-2 rounded-full shadow-lg border border-blue-100"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close sidebar"
+        >
+          <ChevronRightIcon className="h-7 w-7 text-blue-700" />
+        </button>
+      )}
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg p-6 flex flex-col items-center rounded-r-3xl">
-        <UserGroupIcon className="h-12 w-12 text-blue-600 mb-2" />
+      <aside
+        className={`
+          fixed z-40 top-0 left-0 h-screen md:h-auto min-h-screen w-64 bg-white shadow-lg p-6 flex flex-col items-center rounded-r-3xl transition-transform duration-300 flex-shrink-0
+          md:relative md:translate-x-0 md:flex md:w-64 md:z-auto
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+        style={{ maxWidth: '90vw' }}
+        aria-label="Sidebar"
+      >
+        {/* Close button for mobile */}
+        <button
+          className="md:hidden absolute top-4 right-4 bg-blue-100 p-1 rounded-full"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close sidebar"
+        >
+          <XMarkIcon className="h-6 w-6 text-blue-700" />
+        </button>
+        <UserGroupIcon className="h-12 w-12 text-blue-600 mb-2 mt-8 md:mt-0" />
         <h2 className="text-xl font-bold mb-2 text-blue-700">Faculty</h2>
         <div className="mb-6 text-center">
           <div className="font-semibold text-gray-700">{user?.name || 'Faculty User'}</div>
@@ -129,8 +164,16 @@ export default function FacultyDashboard() {
           </li>
         </ul>
       </aside>
+      {/* Overlay for mobile sidebar */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Sidebar overlay"
+        />
+      )}
       {/* Main Content */}
-      <main className="flex-1 p-10">
+      <main className="flex-1 p-4 md:p-10 transition-all duration-300">
         <h1 className="text-3xl font-extrabold text-blue-700 mb-8 flex items-center gap-4">
           Welcome, {user?.name || 'Faculty User'}!
           {headDept && (
@@ -205,9 +248,9 @@ export default function FacultyDashboard() {
               </select>
             </div>
             {selectedStudent && (
-              <div>
+              <div className="overflow-x-auto w-full">
                 <h3 className="mt-4 font-semibold">Existing Results</h3>
-                <ul className="mb-4">
+                <ul className="mb-4 min-w-[340px] md:min-w-0">
                   {results.map(r => (
                     <li key={r._id} className="mb-2 border-b pb-2">
                       <b>{r.semester}</b> | CGPA: {r.cgpa}
@@ -220,20 +263,20 @@ export default function FacultyDashboard() {
                     </li>
                   ))}
                 </ul>
-                <form onSubmit={handleResultSubmit} className="space-y-2">
-                  <div className="flex gap-2">
-                    <input type="text" placeholder="Semester" className="border rounded px-2 py-1 flex-1" value={newResult.semester} onChange={e => setNewResult({ ...newResult, semester: e.target.value })} required />
-                    <input type="number" step="0.01" placeholder="CGPA" className="border rounded px-2 py-1 flex-1" value={newResult.cgpa} onChange={e => setNewResult({ ...newResult, cgpa: e.target.value })} required />
+                <form onSubmit={handleResultSubmit} className="space-y-2 min-w-[340px] md:min-w-0">
+                  <div className="flex gap-2 flex-wrap">
+                    <input type="text" placeholder="Semester" className="border rounded px-2 py-1 flex-1 min-w-[100px]" value={newResult.semester} onChange={e => setNewResult({ ...newResult, semester: e.target.value })} required />
+                    <input type="number" step="0.01" placeholder="CGPA" className="border rounded px-2 py-1 flex-1 min-w-[100px]" value={newResult.cgpa} onChange={e => setNewResult({ ...newResult, cgpa: e.target.value })} required />
                   </div>
                   <div>
                     <b>Subjects:</b>
                     <div className="flex flex-col gap-3 mt-2">
                       {newResult.subjects.map((sub, idx) => (
                         <div key={idx} className="bg-gray-50 p-3 rounded-lg shadow-sm flex flex-col gap-2 relative mt-2">
-                          <div className="flex gap-2">
-                            <input type="text" placeholder="Name" className="border rounded px-2 py-1 flex-1" value={sub.name} onChange={e => updateSubject(idx, 'name', e.target.value)} required />
-                            <input type="text" placeholder="Grade" className="border rounded px-2 py-1 flex-1" value={sub.grade} onChange={e => updateSubject(idx, 'grade', e.target.value)} required />
-                            <input type="number" placeholder="Marks" className="border rounded px-2 py-1 flex-1" value={sub.marks} onChange={e => updateSubject(idx, 'marks', e.target.value)} required />
+                          <div className="flex gap-2 flex-wrap">
+                            <input type="text" placeholder="Name" className="border rounded px-2 py-1 flex-1 min-w-[80px]" value={sub.name} onChange={e => updateSubject(idx, 'name', e.target.value)} required />
+                            <input type="text" placeholder="Grade" className="border rounded px-2 py-1 flex-1 min-w-[60px]" value={sub.grade} onChange={e => updateSubject(idx, 'grade', e.target.value)} required />
+                            <input type="number" placeholder="Marks" className="border rounded px-2 py-1 flex-1 min-w-[60px]" value={sub.marks} onChange={e => updateSubject(idx, 'marks', e.target.value)} required />
                           </div>
                         </div>
                       ))}

@@ -1,5 +1,5 @@
 import { useAuth } from "../components/AuthContext";
-import { AcademicCapIcon, CalendarIcon, CurrencyDollarIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
+import { AcademicCapIcon, CalendarIcon, CurrencyDollarIcon, ClipboardDocumentListIcon, Bars3Icon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import html2canvas from "html2canvas";
@@ -16,9 +16,10 @@ export default function StudentDashboard() {
   const [fee, setFee] = useState(null);
   const [loading, setLoading] = useState(true);
   const gradeCardRef = useRef();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Debug: log roll number
-  console.log("Student rollno:", user?.rollno, "rollNo:", user?.rollNo);
+  // console.log("Student rollno:", user?.rollno, "rollNo:", user?.rollNo);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -32,10 +33,10 @@ export default function StudentDashboard() {
           axios.get(`${API_URL}/notices`, { headers }).then(r => r.data),
           axios.get(`${API_URL}/fees`, { headers }).then(r => r.data),
         ]);
-        console.log('Attendance:', att);
-        console.log('Results:', res);
-        console.log('Notices:', not);
-        console.log('Fee:', fe);
+        // console.log('Attendance:', att);
+        // console.log('Results:', res);
+        // console.log('Notices:', not);
+        // console.log('Fee:', fe);
         setAttendance(att);
         setResults(res);
         setNotices(not);
@@ -101,9 +102,43 @@ export default function StudentDashboard() {
   if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
 
   return (
-    <div className="flex min-h-[80vh] bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100">
+    <div className="flex min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100">
+      {/* Hamburger or Arrow for mobile */}
+      {!sidebarOpen ? (
+        <button
+          className="md:hidden fixed top-4 left-4 z-30 bg-white p-2 rounded-full shadow-lg border border-blue-100"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open sidebar"
+        >
+          <Bars3Icon className="h-7 w-7 text-blue-700" />
+        </button>
+      ) : (
+        <button
+          className="md:hidden fixed top-4 left-4 z-40 bg-white p-2 rounded-full shadow-lg border border-blue-100"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close sidebar"
+        >
+          <ChevronRightIcon className="h-7 w-7 text-blue-700" />
+        </button>
+      )}
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg p-6 flex flex-col items-center rounded-r-3xl">
+      <aside
+        className={`
+          fixed z-40 top-0 left-0 h-screen md:h-auto min-h-screen w-64 bg-white shadow-lg p-2 md:p-6 flex flex-col items-center rounded-r-3xl transition-transform duration-300 flex-shrink-0
+          md:relative md:translate-x-0 md:flex md:w-64 md:z-auto
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+        style={{ maxWidth: '90vw' }}
+        aria-label="Sidebar"
+      >
+        {/* Close button for mobile */}
+        <button
+          className="md:hidden absolute top-4 right-4 bg-blue-100 p-1 rounded-full"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close sidebar"
+        >
+          <ChevronRightIcon className="h-6 w-6 text-blue-700" />
+        </button>
         <AcademicCapIcon className="h-12 w-12 text-blue-600 mb-2" />
         <h2 className="text-xl font-bold mb-2 text-blue-700">Student</h2>
         <div className="mb-6 text-center">
@@ -133,48 +168,56 @@ export default function StudentDashboard() {
           </li>
         </ul>
       </aside>
+      {/* Overlay for mobile sidebar */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Sidebar overlay"
+        />
+      )}
       {/* Main Content */}
-      <main className="flex-1 p-10">
-        <h1 className="text-3xl font-extrabold text-blue-700 mb-8">Welcome, {user?.name || "Student"}!</h1>
+      <main className="flex-1 p-2 sm:p-4 md:p-10">
+        <h1 className="text-3xl font-extrabold text-blue-700 mb-4 md:mb-8">Welcome, {user?.name || "Student"}!</h1>
         {/* Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-blue-200">
-            <CalendarIcon className="h-8 w-8 text-blue-500" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-10">
+          <div className="bg-white rounded-xl shadow p-4 md:p-6 flex items-center gap-3 md:gap-4 border-b-4 border-blue-200">
+            <CalendarIcon className="h-7 w-7 md:h-8 md:w-8 text-blue-500" />
             <div>
-              <div className="text-2xl font-bold text-blue-700">{attendance?.percentage ?? "--"}%</div>
-              <div className="text-gray-500 text-sm">Attendance</div>
+              <div className="text-xl md:text-2xl font-bold text-blue-700">{attendance?.percentage ?? "--"}%</div>
+              <div className="text-gray-500 text-xs md:text-sm">Attendance</div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-green-200">
-            <ClipboardDocumentListIcon className="h-8 w-8 text-green-500" />
+          <div className="bg-white rounded-xl shadow p-4 md:p-6 flex items-center gap-3 md:gap-4 border-b-4 border-green-200">
+            <ClipboardDocumentListIcon className="h-7 w-7 md:h-8 md:w-8 text-green-500" />
             <div>
-              <div className="text-2xl font-bold text-green-700">
+              <div className="text-xl md:text-2xl font-bold text-green-700">
                 {results.length
                   ? (results.reduce((sum, r) => sum + (parseFloat(r.cgpa) || 0), 0) / results.length).toFixed(2)
                   : "--"}
               </div>
-              <div className="text-gray-500 text-sm">CGPA</div>
+              <div className="text-gray-500 text-xs md:text-sm">CGPA</div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-yellow-200">
-            <CurrencyDollarIcon className="h-8 w-8 text-yellow-500" />
+          <div className="bg-white rounded-xl shadow p-4 md:p-6 flex items-center gap-3 md:gap-4 border-b-4 border-yellow-200">
+            <CurrencyDollarIcon className="h-7 w-7 md:h-8 md:w-8 text-yellow-500" />
             <div>
-              <div className="text-2xl font-bold text-yellow-700">{fee?.status ?? "--"}</div>
-              <div className="text-gray-500 text-sm">Fees</div>
+              <div className="text-xl md:text-2xl font-bold text-yellow-700">{fee?.status ?? "--"}</div>
+              <div className="text-gray-500 text-xs md:text-sm">Fees</div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-purple-200">
-            <AcademicCapIcon className="h-8 w-8 text-purple-500" />
+          <div className="bg-white rounded-xl shadow p-4 md:p-6 flex items-center gap-3 md:gap-4 border-b-4 border-purple-200">
+            <AcademicCapIcon className="h-7 w-7 md:h-8 md:w-8 text-purple-500" />
             <div>
-              <div className="text-2xl font-bold text-purple-700">{notices.length}</div>
-              <div className="text-gray-500 text-sm">Notices</div>
+              <div className="text-xl md:text-2xl font-bold text-purple-700">{notices.length}</div>
+              <div className="text-gray-500 text-xs md:text-sm">Notices</div>
             </div>
           </div>
         </div>
         {/* Sections */}
-        <section id="attendance" className="mb-10">
-          <h2 className="text-xl font-semibold mb-4 text-blue-700 border-l-4 border-blue-400 pl-2">Attendance</h2>
-          <div className="bg-white p-6 rounded-xl shadow">
+        <section id="attendance" className="mb-6 md:mb-10">
+          <h2 className="text-lg md:text-xl font-semibold mb-2 md:mb-4 text-blue-700 border-l-4 border-blue-400 pl-2">Attendance</h2>
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow overflow-x-auto">
             {attendance ? (
               <div>
                 <p><b>Attended:</b> {attendance.attended} / {attendance.total}</p>
@@ -183,10 +226,10 @@ export default function StudentDashboard() {
             ) : <p>No attendance data.</p>}
           </div>
         </section>
-        <section id="results" className="mb-10">
-          <h2 className="text-xl font-semibold mb-4 text-green-700 border-l-4 border-green-400 pl-2 flex items-center justify-between">
+        <section id="results" className="mb-6 md:mb-10">
+          <h2 className="text-lg md:text-xl font-semibold mb-2 md:mb-4 text-green-700 border-l-4 border-green-400 pl-2 flex items-center justify-between">
             Results
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button
                 onClick={handleDownloadImage}
                 className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 font-semibold shadow transition text-sm"
@@ -201,7 +244,7 @@ export default function StudentDashboard() {
               </button>
             </div>
           </h2>
-          <div className="bg-white p-6 rounded-xl shadow">
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow overflow-x-auto">
             {results.length ? results.map((r, i) => (
               <div key={i} className="mb-4">
                 <div className="font-bold">Semester: {r.semester} | CGPA: {r.cgpa}</div>
@@ -282,9 +325,9 @@ export default function StudentDashboard() {
             </div>
           </div>
         </section>
-        <section id="notices" className="mb-10">
-          <h2 className="text-xl font-semibold mb-4 text-purple-700 border-l-4 border-purple-400 pl-2">Notices</h2>
-          <div className="bg-white p-6 rounded-xl shadow">
+        <section id="notices" className="mb-6 md:mb-10">
+          <h2 className="text-lg md:text-xl font-semibold mb-2 md:mb-4 text-purple-700 border-l-4 border-purple-400 pl-2">Notices</h2>
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow overflow-x-auto">
             {notices.length ? (
               <ul>
                 {notices.map((n, i) => (
@@ -298,8 +341,8 @@ export default function StudentDashboard() {
           </div>
         </section>
         <section id="fees">
-          <h2 className="text-xl font-semibold mb-4 text-yellow-700 border-l-4 border-yellow-400 pl-2">Fees</h2>
-          <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-lg md:text-xl font-semibold mb-2 md:mb-4 text-yellow-700 border-l-4 border-yellow-400 pl-2">Fees</h2>
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow overflow-x-auto">
             {fee ? (
               <div>
                 <p><b>Status:</b> {fee.status}</p>

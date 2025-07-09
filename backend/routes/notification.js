@@ -6,9 +6,9 @@ const router = express.Router();
 router.get('/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    console.log('Fetching notifications for userId:', userId);
+    // console.log('Fetching notifications for userId:', userId);
     const user = await require('../models/User').findById(userId);
-    console.log('Fetched user:', user);
+    // console.log('Fetched user:', user);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     // Fetch notifications for user, their role, or global (no user/role)
@@ -19,7 +19,7 @@ router.get('/:userId', async (req, res) => {
         { user: { $exists: false }, role: { $exists: false } }
       ]
     }).sort({ createdAt: -1 });
-    console.log('Notifications found:', notifications);
+    // console.log('Notifications found:', notifications);
     res.json(notifications);
   } catch (err) {
     res.status(500).json({ error: err.message });

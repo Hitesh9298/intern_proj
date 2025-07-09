@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { UserGroupIcon, AcademicCapIcon, ClipboardDocumentListIcon, BuildingOffice2Icon, PlusCircleIcon, TrashIcon, PencilIcon, ArrowDownTrayIcon, KeyIcon, UserIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, AcademicCapIcon, ClipboardDocumentListIcon, BuildingOffice2Icon, PlusCircleIcon, TrashIcon, PencilIcon, ArrowDownTrayIcon, KeyIcon, UserIcon, Bars3Icon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const API_URL = "http://localhost:5000/api/admin";
 
@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   const [resetRole, setResetRole] = useState('');
   const [resetPassword, setResetPassword] = useState('');
   const [showHeadsPopover, setShowHeadsPopover] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const token = localStorage.getItem('token');
   const headers = { headers: { authorization: token } };
@@ -206,9 +207,43 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <div className="flex min-h-[80vh] bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100">
+    <div className="flex min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100">
+      {/* Hamburger or Arrow for mobile */}
+      {!sidebarOpen ? (
+        <button
+          className="md:hidden fixed top-4 left-4 z-30 bg-white p-2 rounded-full shadow-lg border border-blue-100"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open sidebar"
+        >
+          <Bars3Icon className="h-7 w-7 text-blue-700" />
+        </button>
+      ) : (
+        <button
+          className="md:hidden fixed top-4 left-4 z-40 bg-white p-2 rounded-full shadow-lg border border-blue-100"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close sidebar"
+        >
+          <ChevronRightIcon className="h-7 w-7 text-blue-700" />
+        </button>
+      )}
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg p-6 flex flex-col items-center rounded-r-3xl">
+      <aside
+        className={`
+          fixed z-40 top-0 left-0 h-screen md:h-auto min-h-screen w-64 bg-white shadow-lg p-2 md:p-6 flex flex-col items-center rounded-r-3xl transition-transform duration-300 flex-shrink-0
+          md:relative md:translate-x-0 md:flex md:w-64 md:z-auto
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+        style={{ maxWidth: '90vw' }}
+        aria-label="Sidebar"
+      >
+        {/* Close button for mobile */}
+        <button
+          className="md:hidden absolute top-4 right-4 bg-blue-100 p-1 rounded-full"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close sidebar"
+        >
+          <ChevronRightIcon className="h-6 w-6 text-blue-700" />
+        </button>
         <UserGroupIcon className="h-12 w-12 text-blue-600 mb-2" />
         <h2 className="text-xl font-bold mb-2 text-blue-700">Admin</h2>
         <div className="mb-6 text-center">
@@ -243,62 +278,72 @@ export default function AdminDashboard() {
           </li>
         </ul>
       </aside>
+      {/* Overlay for mobile sidebar */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Sidebar overlay"
+        />
+      )}
       {/* Main Content */}
-      <main className="flex-1 p-10">
-        <h1 className="text-3xl font-extrabold text-blue-700 mb-8">Welcome, Admin User!</h1>
+      <main className="flex-1 p-2 sm:p-4 md:p-10">
+        <h1 className="text-3xl font-extrabold text-blue-700 mb-4 md:mb-8">Welcome, Admin User!</h1>
         {/* Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-blue-200">
-            <BuildingOffice2Icon className="h-8 w-8 text-blue-500" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-10">
+          <div className="bg-white rounded-xl shadow p-4 md:p-6 flex items-center gap-3 md:gap-4 border-b-4 border-blue-200">
+            <BuildingOffice2Icon className="h-7 w-7 md:h-8 md:w-8 text-blue-500" />
             <div>
-              <div className="text-2xl font-bold text-blue-700">{reports.totalDepartments || 0}</div>
-              <div className="text-gray-500 text-sm">Departments</div>
+              <div className="text-xl md:text-2xl font-bold text-blue-700">{reports.totalDepartments || 0}</div>
+              <div className="text-gray-500 text-xs md:text-sm">Departments</div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-green-200">
-            <AcademicCapIcon className="h-8 w-8 text-green-500" />
+          <div className="bg-white rounded-xl shadow p-4 md:p-6 flex items-center gap-3 md:gap-4 border-b-4 border-green-200">
+            <AcademicCapIcon className="h-7 w-7 md:h-8 md:w-8 text-green-500" />
             <div>
-              <div className="text-2xl font-bold text-green-700">{reports.totalTeachers || 0}</div>
-              <div className="text-gray-500 text-sm">Teachers</div>
+              <div className="text-xl md:text-2xl font-bold text-green-700">{reports.totalTeachers || 0}</div>
+              <div className="text-gray-500 text-xs md:text-sm">Teachers</div>
             </div>
           </div>
-          <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4 border-b-4 border-purple-200">
-            <ClipboardDocumentListIcon className="h-8 w-8 text-purple-500" />
+          <div className="bg-white rounded-xl shadow p-4 md:p-6 flex items-center gap-3 md:gap-4 border-b-4 border-purple-200">
+            <ClipboardDocumentListIcon className="h-7 w-7 md:h-8 md:w-8 text-purple-500" />
             <div>
-              <div className="text-2xl font-bold text-purple-700">{reports.totalStudents || 0}</div>
-              <div className="text-gray-500 text-sm">Students</div>
+              <div className="text-xl md:text-2xl font-bold text-purple-700">{reports.totalStudents || 0}</div>
+              <div className="text-gray-500 text-xs md:text-sm">Students</div>
             </div>
           </div>
         </div>
         {/* Departments Section */}
-        <section id="departments" className="mb-10">
-          <h2 className="text-xl font-semibold mb-4 text-blue-700 border-l-4 border-blue-400 pl-2 flex items-center justify-between">
+        <section id="departments" className="mb-6 md:mb-10">
+          <h2 className="text-lg md:text-xl font-semibold mb-2 md:mb-4 text-blue-700 border-l-4 border-blue-400 pl-2 flex items-center justify-between">
             Departments
-            <button onClick={() => exportCSV(departments, 'departments.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 font-semibold shadow transition text-sm">
+            <button onClick={() => exportCSV(departments, 'departments.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 font-semibold shadow transition text-xs md:text-sm">
               <ArrowDownTrayIcon className="h-4 w-4" /> Export
             </button>
           </h2>
-          <div className="bg-white p-6 rounded-xl shadow mb-4">
-            <form onSubmit={editDept ? handleEditDept : handleAddDept} className="flex gap-2 mb-4">
-              <input type="text" placeholder="Department Name" className="border rounded px-2 py-1 flex-1" value={editDept ? editDept.name : newDept.name} onChange={e => editDept ? setEditDept({ ...editDept, name: e.target.value }) : setNewDept({ ...newDept, name: e.target.value })} required />
-              <select
-                className="border rounded px-2 py-1"
-                value={editDept ? (editDept.head || '') : (newDept.head || '')}
-                onChange={e => editDept ? setEditDept({ ...editDept, head: e.target.value }) : setNewDept({ ...newDept, head: e.target.value })}
-              >
-                <option value="">--Select Head--</option>
-                {teachers.map(t => (
-                  <option key={t._id} value={t._id}>{t.name}</option>
-                ))}
-              </select>
-              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-1">
-                <PlusCircleIcon className="h-5 w-5" /> {editDept ? 'Update' : 'Add'}
-              </button>
-              {editDept && <button type="button" className="ml-2 text-gray-500" onClick={() => setEditDept(null)}>Cancel</button>}
-            </form>
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow mb-4 overflow-x-auto">
+            <div className="overflow-x-auto w-full">
+              <form onSubmit={editDept ? handleEditDept : handleAddDept} className="flex gap-2 mb-4 min-w-[340px] md:min-w-0">
+                <input type="text" placeholder="Department Name" className="border rounded px-2 py-1 flex-1 min-w-[120px]" value={editDept ? editDept.name : newDept.name} onChange={e => editDept ? setEditDept({ ...editDept, name: e.target.value }) : setNewDept({ ...newDept, name: e.target.value })} required />
+                <select
+                  className="border rounded px-2 py-1 min-w-[100px]"
+                  value={editDept ? (editDept.head || '') : (newDept.head || '')}
+                  onChange={e => editDept ? setEditDept({ ...editDept, head: e.target.value }) : setNewDept({ ...newDept, head: e.target.value })}
+                >
+                  <option value="">--Select Head--</option>
+                  {teachers.map(t => (
+                    <option key={t._id} value={t._id}>{t.name}</option>
+                  ))}
+                </select>
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-1">
+                  <PlusCircleIcon className="h-5 w-5" /> {editDept ? 'Update' : 'Add'}
+                </button>
+                {editDept && <button type="button" className="ml-2 text-gray-500" onClick={() => setEditDept(null)}>Cancel</button>}
+              </form>
+            </div>
             <ul>
               {departments.map(d => (
-                <li key={d._id} className="flex items-center justify-between border-b py-2">
+                <li key={d._id} className="flex items-center justify-between border-b py-2 min-w-[340px] md:min-w-0">
                   <span>{d.name}</span>
                   <div className="flex gap-4">
                     <button className="text-blue-600 flex items-center gap-1 px-2 py-1 rounded hover:bg-blue-50" onClick={() => setEditDept(d)}><PencilIcon className="h-4 w-4" />Edit</button>
@@ -310,28 +355,30 @@ export default function AdminDashboard() {
           </div>
         </section>
         {/* Teachers Section */}
-        <section id="teachers" className="mb-10">
-          <h2 className="text-xl font-semibold mb-4 text-green-700 border-l-4 border-green-400 pl-2 flex items-center justify-between">
+        <section id="teachers" className="mb-6 md:mb-10">
+          <h2 className="text-lg md:text-xl font-semibold mb-2 md:mb-4 text-green-700 border-l-4 border-green-400 pl-2 flex items-center justify-between">
             Teachers
-            <button onClick={() => exportCSV(teachers, 'teachers.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 font-semibold shadow transition text-sm">
+            <button onClick={() => exportCSV(teachers, 'teachers.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 font-semibold shadow transition text-xs md:text-sm">
               <ArrowDownTrayIcon className="h-4 w-4" /> Export
             </button>
           </h2>
-          <div className="bg-white p-6 rounded-xl shadow mb-4">
-            <form onSubmit={editTeacher ? handleEditTeacher : handleAddTeacher} className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4">
-              <input type="text" placeholder="Name" className="border rounded px-2 py-1" value={editTeacher ? editTeacher.name : newTeacher.name} onChange={e => editTeacher ? setEditTeacher({ ...editTeacher, name: e.target.value }) : setNewTeacher({ ...newTeacher, name: e.target.value })} required />
-              <input type="email" placeholder="Email" className="border rounded px-2 py-1" value={editTeacher ? editTeacher.email : newTeacher.email} onChange={e => editTeacher ? setEditTeacher({ ...editTeacher, email: e.target.value }) : setNewTeacher({ ...newTeacher, email: e.target.value })} required />
-              <input type="text" placeholder="EmpID" className="border rounded px-2 py-1" value={editTeacher ? editTeacher.empid : newTeacher.empid} onChange={e => editTeacher ? setEditTeacher({ ...editTeacher, empid: e.target.value }) : setNewTeacher({ ...newTeacher, empid: e.target.value })} required />
-              <input type="text" placeholder="Department" className="border rounded px-2 py-1" value={editTeacher ? editTeacher.department : newTeacher.department} onChange={e => editTeacher ? setEditTeacher({ ...editTeacher, department: e.target.value }) : setNewTeacher({ ...newTeacher, department: e.target.value })} required />
-              {!editTeacher && <input type="password" placeholder="Password" className="border rounded px-2 py-1" value={newTeacher.password} onChange={e => setNewTeacher({ ...newTeacher, password: e.target.value })} required />}
-              <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center gap-1 col-span-1">
-                <PlusCircleIcon className="h-5 w-5" /> {editTeacher ? 'Update' : 'Add'}
-              </button>
-              {editTeacher && <button type="button" className="ml-2 text-gray-500 col-span-1" onClick={() => setEditTeacher(null)}>Cancel</button>}
-            </form>
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow mb-4 overflow-x-auto">
+            <div className="overflow-x-auto w-full">
+              <form onSubmit={editTeacher ? handleEditTeacher : handleAddTeacher} className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4 min-w-[340px] md:min-w-0">
+                <input type="text" placeholder="Name" className="border rounded px-2 py-1" value={editTeacher ? editTeacher.name : newTeacher.name} onChange={e => editTeacher ? setEditTeacher({ ...editTeacher, name: e.target.value }) : setNewTeacher({ ...newTeacher, name: e.target.value })} required />
+                <input type="email" placeholder="Email" className="border rounded px-2 py-1" value={editTeacher ? editTeacher.email : newTeacher.email} onChange={e => editTeacher ? setEditTeacher({ ...editTeacher, email: e.target.value }) : setNewTeacher({ ...newTeacher, email: e.target.value })} required />
+                <input type="text" placeholder="EmpID" className="border rounded px-2 py-1" value={editTeacher ? editTeacher.empid : newTeacher.empid} onChange={e => editTeacher ? setEditTeacher({ ...editTeacher, empid: e.target.value }) : setNewTeacher({ ...newTeacher, empid: e.target.value })} required />
+                <input type="text" placeholder="Department" className="border rounded px-2 py-1" value={editTeacher ? editTeacher.department : newTeacher.department} onChange={e => editTeacher ? setEditTeacher({ ...editTeacher, department: e.target.value }) : setNewTeacher({ ...newTeacher, department: e.target.value })} required />
+                {!editTeacher && <input type="password" placeholder="Password" className="border rounded px-2 py-1" value={newTeacher.password} onChange={e => setNewTeacher({ ...newTeacher, password: e.target.value })} required />}
+                <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center gap-1 col-span-1">
+                  <PlusCircleIcon className="h-5 w-5" /> {editTeacher ? 'Update' : 'Add'}
+                </button>
+                {editTeacher && <button type="button" className="ml-2 text-gray-500 col-span-1" onClick={() => setEditTeacher(null)}>Cancel</button>}
+              </form>
+            </div>
             <ul>
               {teachers.map(t => (
-                <li key={t._id} className="flex items-center justify-between border-b py-2">
+                <li key={t._id} className="flex items-center justify-between border-b py-2 min-w-[340px] md:min-w-0">
                   <span>{t.name} ({t.email})</span>
                   <div className="flex gap-4">
                     <button className="text-blue-600 flex items-center gap-1 px-2 py-1 rounded hover:bg-blue-50" onClick={() => setEditTeacher(t)}><PencilIcon className="h-4 w-4" />Edit</button>
@@ -344,28 +391,30 @@ export default function AdminDashboard() {
           </div>
         </section>
         {/* Students Section */}
-        <section id="students" className="mb-10">
-          <h2 className="text-xl font-semibold mb-4 text-purple-700 border-l-4 border-purple-400 pl-2 flex items-center justify-between">
+        <section id="students" className="mb-6 md:mb-10">
+          <h2 className="text-lg md:text-xl font-semibold mb-2 md:mb-4 text-purple-700 border-l-4 border-purple-400 pl-2 flex items-center justify-between">
             Students
-            <button onClick={() => exportCSV(students, 'students.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 font-semibold shadow transition text-sm">
+            <button onClick={() => exportCSV(students, 'students.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 font-semibold shadow transition text-xs md:text-sm">
               <ArrowDownTrayIcon className="h-4 w-4" /> Export
             </button>
           </h2>
-          <div className="bg-white p-6 rounded-xl shadow mb-4">
-            <form onSubmit={editStudent ? handleEditStudent : handleAddStudent} className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4">
-              <input type="text" placeholder="Name" className="border rounded px-2 py-1" value={editStudent ? editStudent.name : newStudent.name} onChange={e => editStudent ? setEditStudent({ ...editStudent, name: e.target.value }) : setNewStudent({ ...newStudent, name: e.target.value })} required />
-              <input type="email" placeholder="Email" className="border rounded px-2 py-1" value={editStudent ? editStudent.email : newStudent.email} onChange={e => editStudent ? setEditStudent({ ...editStudent, email: e.target.value }) : setNewStudent({ ...newStudent, email: e.target.value })} required />
-              <input type="text" placeholder="Roll No" className="border rounded px-2 py-1" value={editStudent ? editStudent.rollno : newStudent.rollno} onChange={e => editStudent ? setEditStudent({ ...editStudent, rollno: e.target.value }) : setNewStudent({ ...newStudent, rollno: e.target.value })} required />
-              <input type="text" placeholder="Department" className="border rounded px-2 py-1" value={editStudent ? editStudent.department : newStudent.department} onChange={e => editStudent ? setEditStudent({ ...editStudent, department: e.target.value }) : setNewStudent({ ...newStudent, department: e.target.value })} required />
-              {!editStudent && <input type="password" placeholder="Password" className="border rounded px-2 py-1" value={newStudent.password} onChange={e => setNewStudent({ ...newStudent, password: e.target.value })} required />}
-              <button type="submit" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 flex items-center gap-1 col-span-1">
-                <PlusCircleIcon className="h-5 w-5" /> {editStudent ? 'Update' : 'Add'}
-              </button>
-              {editStudent && <button type="button" className="ml-2 text-gray-500 col-span-1" onClick={() => setEditStudent(null)}>Cancel</button>}
-            </form>
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow mb-4 overflow-x-auto">
+            <div className="overflow-x-auto w-full">
+              <form onSubmit={editStudent ? handleEditStudent : handleAddStudent} className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4 min-w-[340px] md:min-w-0">
+                <input type="text" placeholder="Name" className="border rounded px-2 py-1" value={editStudent ? editStudent.name : newStudent.name} onChange={e => editStudent ? setEditStudent({ ...editStudent, name: e.target.value }) : setNewStudent({ ...newStudent, name: e.target.value })} required />
+                <input type="email" placeholder="Email" className="border rounded px-2 py-1" value={editStudent ? editStudent.email : newStudent.email} onChange={e => editStudent ? setEditStudent({ ...editStudent, email: e.target.value }) : setNewStudent({ ...newStudent, email: e.target.value })} required />
+                <input type="text" placeholder="Roll No" className="border rounded px-2 py-1" value={editStudent ? editStudent.rollno : newStudent.rollno} onChange={e => editStudent ? setEditStudent({ ...editStudent, rollno: e.target.value }) : setNewStudent({ ...newStudent, rollno: e.target.value })} required />
+                <input type="text" placeholder="Department" className="border rounded px-2 py-1" value={editStudent ? editStudent.department : newStudent.department} onChange={e => editStudent ? setEditStudent({ ...editStudent, department: e.target.value }) : setNewStudent({ ...newStudent, department: e.target.value })} required />
+                {!editStudent && <input type="password" placeholder="Password" className="border rounded px-2 py-1" value={newStudent.password} onChange={e => setNewStudent({ ...newStudent, password: e.target.value })} required />}
+                <button type="submit" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 flex items-center gap-1 col-span-1">
+                  <PlusCircleIcon className="h-5 w-5" /> {editStudent ? 'Update' : 'Add'}
+                </button>
+                {editStudent && <button type="button" className="ml-2 text-gray-500 col-span-1" onClick={() => setEditStudent(null)}>Cancel</button>}
+              </form>
+            </div>
             <ul>
               {students.map(s => (
-                <li key={s._id} className="flex items-center justify-between border-b py-2">
+                <li key={s._id} className="flex items-center justify-between border-b py-2 min-w-[340px] md:min-w-0">
                   <span>{s.name} ({s.email})</span>
                   <div className="flex gap-4">
                     <button className="text-blue-600 flex items-center gap-1 px-2 py-1 rounded hover:bg-blue-50" onClick={() => setEditStudent(s)}><PencilIcon className="h-4 w-4" />Edit</button>
@@ -378,34 +427,36 @@ export default function AdminDashboard() {
           </div>
         </section>
         {/* Fees Section */}
-        <section id="fees" className="mb-10">
-          <h2 className="text-xl font-semibold mb-4 text-yellow-700 border-l-4 border-yellow-400 pl-2 flex items-center justify-between">
+        <section id="fees" className="mb-6 md:mb-10">
+          <h2 className="text-lg md:text-xl font-semibold mb-2 md:mb-4 text-yellow-700 border-l-4 border-yellow-400 pl-2 flex items-center justify-between">
             Fees
-            <button onClick={() => exportCSV(fees, 'fees.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 font-semibold shadow transition text-sm">
+            <button onClick={() => exportCSV(fees, 'fees.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 font-semibold shadow transition text-xs md:text-sm">
               <ArrowDownTrayIcon className="h-4 w-4" /> Export
             </button>
           </h2>
-          <div className="bg-white p-6 rounded-xl shadow mb-4">
-            <form onSubmit={editFee ? handleEditFee : handleAddFee} className="flex flex-wrap gap-2 mb-4">
-              <select className="border rounded px-2 py-1" value={editFee ? editFee.student : newFee.student} onChange={e => editFee ? setEditFee({ ...editFee, student: e.target.value }) : setNewFee({ ...newFee, student: e.target.value })} required>
-                <option value="">--Select Student--</option>
-                {students.map(s => <option key={s._id} value={s._id}>{s.name} ({s.rollno})</option>)}
-              </select>
-              <input type="number" placeholder="Amount" className="border rounded px-2 py-1" value={editFee ? editFee.amount : newFee.amount} onChange={e => editFee ? setEditFee({ ...editFee, amount: e.target.value }) : setNewFee({ ...newFee, amount: e.target.value })} required />
-              <select className="border rounded px-2 py-1" value={editFee ? editFee.status : newFee.status} onChange={e => editFee ? setEditFee({ ...editFee, status: e.target.value }) : setNewFee({ ...newFee, status: e.target.value })} required>
-                <option value="Unpaid">Unpaid</option>
-                <option value="Paid">Paid</option>
-                <option value="Partial">Partial</option>
-              </select>
-              <input type="date" placeholder="Due Date" className="border rounded px-2 py-1" value={editFee ? (editFee.dueDate ? editFee.dueDate.substring(0,10) : '') : newFee.dueDate} onChange={e => editFee ? setEditFee({ ...editFee, dueDate: e.target.value }) : setNewFee({ ...newFee, dueDate: e.target.value })} />
-              <button type="submit" className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 flex items-center gap-1">
-                <PlusCircleIcon className="h-5 w-5" /> {editFee ? 'Update' : 'Add'}
-              </button>
-              {editFee && <button type="button" className="ml-2 text-gray-500" onClick={() => setEditFee(null)}>Cancel</button>}
-            </form>
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow mb-4 overflow-x-auto">
+            <div className="overflow-x-auto w-full">
+              <form onSubmit={editFee ? handleEditFee : handleAddFee} className="flex flex-wrap gap-2 mb-4 min-w-[340px] md:min-w-0">
+                <select className="border rounded px-2 py-1" value={editFee ? editFee.student : newFee.student} onChange={e => editFee ? setEditFee({ ...editFee, student: e.target.value }) : setNewFee({ ...newFee, student: e.target.value })} required>
+                  <option value="">--Select Student--</option>
+                  {students.map(s => <option key={s._id} value={s._id}>{s.name} ({s.rollno})</option>)}
+                </select>
+                <input type="number" placeholder="Amount" className="border rounded px-2 py-1" value={editFee ? editFee.amount : newFee.amount} onChange={e => editFee ? setEditFee({ ...editFee, amount: e.target.value }) : setNewFee({ ...newFee, amount: e.target.value })} required />
+                <select className="border rounded px-2 py-1" value={editFee ? editFee.status : newFee.status} onChange={e => editFee ? setEditFee({ ...editFee, status: e.target.value }) : setNewFee({ ...newFee, status: e.target.value })} required>
+                  <option value="Unpaid">Unpaid</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Partial">Partial</option>
+                </select>
+                <input type="date" placeholder="Due Date" className="border rounded px-2 py-1" value={editFee ? (editFee.dueDate ? editFee.dueDate.substring(0,10) : '') : newFee.dueDate} onChange={e => editFee ? setEditFee({ ...editFee, dueDate: e.target.value }) : setNewFee({ ...newFee, dueDate: e.target.value })} />
+                <button type="submit" className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 flex items-center gap-1">
+                  <PlusCircleIcon className="h-5 w-5" /> {editFee ? 'Update' : 'Add'}
+                </button>
+                {editFee && <button type="button" className="ml-2 text-gray-500" onClick={() => setEditFee(null)}>Cancel</button>}
+              </form>
+            </div>
             <ul>
               {fees.map(f => (
-                <li key={f._id} className="flex items-center justify-between border-b py-2">
+                <li key={f._id} className="flex items-center justify-between border-b py-2 min-w-[340px] md:min-w-0">
                   <span>{f.student?.name} ({f.student?.rollno}) - ₹{f.amount} - <b>{f.status}</b> {f.dueDate && `(Due: ${new Date(f.dueDate).toLocaleDateString()})`}</span>
                   <div className="flex gap-4">
                     <button className="text-blue-600 flex items-center gap-1 px-2 py-1 rounded hover:bg-blue-50" onClick={() => setEditFee(f)}><PencilIcon className="h-4 w-4" />Edit</button>
@@ -417,31 +468,33 @@ export default function AdminDashboard() {
           </div>
         </section>
         {/* Notices Section */}
-        <section id="notices" className="mb-10">
-          <h2 className="text-xl font-semibold mb-4 text-indigo-700 border-l-4 border-indigo-400 pl-2 flex items-center justify-between">
+        <section id="notices" className="mb-6 md:mb-10">
+          <h2 className="text-lg md:text-xl font-semibold mb-2 md:mb-4 text-indigo-700 border-l-4 border-indigo-400 pl-2 flex items-center justify-between">
             Notices
-            <button onClick={() => exportCSV(notices, 'notices.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 font-semibold shadow transition text-sm">
+            <button onClick={() => exportCSV(notices, 'notices.csv')} className="ml-4 flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 font-semibold shadow transition text-xs md:text-sm">
               <ArrowDownTrayIcon className="h-4 w-4" /> Export
             </button>
           </h2>
-          <div className="bg-white p-6 rounded-xl shadow mb-4">
-            <form onSubmit={editNotice ? handleEditNotice : handleAddNotice} className="flex flex-wrap gap-2 mb-4">
-              <input type="text" placeholder="Title" className="border rounded px-2 py-1" value={editNotice ? editNotice.title : newNotice.title} onChange={e => editNotice ? setEditNotice({ ...editNotice, title: e.target.value }) : setNewNotice({ ...newNotice, title: e.target.value })} required />
-              <input type="text" placeholder="Content" className="border rounded px-2 py-1" value={editNotice ? editNotice.content : newNotice.content} onChange={e => editNotice ? setEditNotice({ ...editNotice, content: e.target.value }) : setNewNotice({ ...newNotice, content: e.target.value })} required />
-              <select className="border rounded px-2 py-1" value={editNotice ? editNotice.forRole : newNotice.forRole} onChange={e => editNotice ? setEditNotice({ ...editNotice, forRole: e.target.value }) : setNewNotice({ ...newNotice, forRole: e.target.value })} required>
-                <option value="all">All</option>
-                <option value="student">Students</option>
-                <option value="faculty">Faculty</option>
-                <option value="admin">Admins</option>
-              </select>
-              <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 flex items-center gap-1">
-                <PlusCircleIcon className="h-5 w-5" /> {editNotice ? 'Update' : 'Add'}
-              </button>
-              {editNotice && <button type="button" className="ml-2 text-gray-500" onClick={() => setEditNotice(null)}>Cancel</button>}
-            </form>
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow mb-4 overflow-x-auto">
+            <div className="overflow-x-auto w-full">
+              <form onSubmit={editNotice ? handleEditNotice : handleAddNotice} className="flex flex-wrap gap-2 mb-4 min-w-[340px] md:min-w-0">
+                <input type="text" placeholder="Title" className="border rounded px-2 py-1" value={editNotice ? editNotice.title : newNotice.title} onChange={e => editNotice ? setEditNotice({ ...editNotice, title: e.target.value }) : setNewNotice({ ...newNotice, title: e.target.value })} required />
+                <input type="text" placeholder="Content" className="border rounded px-2 py-1" value={editNotice ? editNotice.content : newNotice.content} onChange={e => editNotice ? setEditNotice({ ...editNotice, content: e.target.value }) : setNewNotice({ ...newNotice, content: e.target.value })} required />
+                <select className="border rounded px-2 py-1" value={editNotice ? editNotice.forRole : newNotice.forRole} onChange={e => editNotice ? setEditNotice({ ...editNotice, forRole: e.target.value }) : setNewNotice({ ...newNotice, forRole: e.target.value })} required>
+                  <option value="all">All</option>
+                  <option value="student">Students</option>
+                  <option value="faculty">Faculty</option>
+                  <option value="admin">Admins</option>
+                </select>
+                <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 flex items-center gap-1">
+                  <PlusCircleIcon className="h-5 w-5" /> {editNotice ? 'Update' : 'Add'}
+                </button>
+                {editNotice && <button type="button" className="ml-2 text-gray-500" onClick={() => setEditNotice(null)}>Cancel</button>}
+              </form>
+            </div>
             <ul>
               {notices.map(n => (
-                <li key={n._id} className="flex items-center justify-between border-b py-2">
+                <li key={n._id} className="flex items-center justify-between border-b py-2 min-w-[340px] md:min-w-0">
                   <span><b>{n.title}</b> - {n.content} <span className="text-xs text-gray-500">({n.forRole})</span></span>
                   <div className="flex gap-4">
                     <button className="text-blue-600 flex items-center gap-1 px-2 py-1 rounded hover:bg-blue-50" onClick={() => setEditNotice(n)}><PencilIcon className="h-4 w-4" />Edit</button>
@@ -454,8 +507,8 @@ export default function AdminDashboard() {
         </section>
         {/* Reports Section */}
         <section id="reports">
-          <h2 className="text-xl font-semibold mb-4 text-yellow-700 border-l-4 border-yellow-400 pl-2">Reports</h2>
-          <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-lg md:text-xl font-semibold mb-2 md:mb-4 text-yellow-700 border-l-4 border-yellow-400 pl-2">Reports</h2>
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow overflow-x-auto">
             <ul>
               <li>Total Departments: <b>{reports.totalDepartments || 0}</b></li>
               <li>Total Teachers: <b>{reports.totalTeachers || 0}</b></li>
@@ -465,8 +518,8 @@ export default function AdminDashboard() {
         </section>
         {/* Activity Logs Section */}
         <section id="logs">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700 border-l-4 border-gray-400 pl-2">Activity Logs</h2>
-          <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-lg md:text-xl font-semibold mb-2 md:mb-4 text-gray-700 border-l-4 border-gray-400 pl-2">Activity Logs</h2>
+          <div className="bg-white p-4 md:p-6 rounded-xl shadow overflow-x-auto">
             <ul>
               {logs.length === 0 && <li className="text-gray-400">No activity logs yet.</li>}
               {logs.map((log, i) => (

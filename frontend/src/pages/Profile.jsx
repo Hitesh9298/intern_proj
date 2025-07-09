@@ -63,72 +63,74 @@ export default function Profile() {
     setUploading(false);
   };
 
-  if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  if (loading) return <div className="flex justify-center items-center h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100">Loading...</div>;
 
   return (
-    <div className="max-w-lg mx-auto mt-10 bg-white p-8 rounded-2xl shadow-lg">
-      <h1 className="text-3xl font-bold mb-6 text-blue-700 text-center">My Profile</h1>
-      <div className="flex flex-col items-center mb-6">
-        <div className="relative">
-          <img
-            src={form.profileImage ? `http://localhost:5000${form.profileImage}` : defaultAvatar}
-            alt="Profile"
-            className="w-28 h-28 rounded-full border-4 border-blue-200 object-cover shadow"
-          />
-          <button
-            className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 shadow hover:bg-blue-700"
-            onClick={() => fileInputRef.current.click()}
-            type="button"
-            title="Change profile image"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2a2.828 2.828 0 11-4-4 2.828 2.828 0 014 4z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7v6a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h7a2 2 0 012 2z" />
-            </svg>
-          </button>
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={handleImageChange}
-            disabled={uploading}
-          />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-blue-50 to-purple-100 py-10">
+      <div className="w-full max-w-xl bg-white p-10 rounded-3xl shadow-2xl border-t-8 border-blue-200">
+        <h1 className="text-4xl font-extrabold mb-8 text-blue-700 text-center tracking-tight drop-shadow">My Profile</h1>
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative group">
+            <img
+              src={form.profileImage ? `http://localhost:5000${form.profileImage}` : defaultAvatar}
+              alt="Profile"
+              className="w-32 h-32 rounded-full border-4 border-blue-300 object-cover shadow-xl transition-transform group-hover:scale-105"
+            />
+            <button
+              className="absolute bottom-2 right-2 bg-blue-600 text-white rounded-full p-2 shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              onClick={() => fileInputRef.current.click()}
+              type="button"
+              title="Change profile image"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2a2.828 2.828 0 11-4-4 2.828 2.828 0 014 4z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7v6a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h7a2 2 0 012 2z" />
+              </svg>
+            </button>
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleImageChange}
+              disabled={uploading}
+            />
+          </div>
+          {uploading && <div className="text-xs text-gray-500 mt-2 animate-pulse">Uploading...</div>}
         </div>
-        {uploading && <div className="text-xs text-gray-500 mt-2">Uploading...</div>}
+        {msg && <div className={`mb-6 text-center px-4 py-2 rounded-lg font-semibold ${msg.includes('fail') || msg.includes('error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{msg}</div>}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">Name</label>
+            <input name="name" value={form.name} onChange={handleChange} placeholder="Enter your name" className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-sm" required />
+          </div>
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">Email</label>
+            <input name="email" value={form.email} onChange={handleChange} placeholder="Enter your email" className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-sm" required />
+          </div>
+          {user?.role === "student" && (
+            <div>
+              <label className="block font-semibold text-gray-700 mb-1">Roll No</label>
+              <input name="rollno" value={form.rollno || ""} onChange={handleChange} placeholder="e.g. 2023CS101" className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-sm" />
+            </div>
+          )}
+          {(user?.role === "faculty" || user?.role === "admin") && (
+            <div>
+              <label className="block font-semibold text-gray-700 mb-1">Employee ID</label>
+              <input name="empid" value={form.empid || ""} onChange={handleChange} placeholder="e.g. EMP01" className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-sm" />
+            </div>
+          )}
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">Department</label>
+            <input name="department" value={form.department || ""} onChange={handleChange} placeholder="e.g. Computer Science" className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-sm" />
+          </div>
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">Change Password</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 shadow-sm" placeholder="Leave blank to keep current" />
+          </div>
+          <button type="submit" className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-lg shadow-md hover:bg-blue-700 transition">Update Profile</button>
+        </form>
       </div>
-      {msg && <div className="mb-4 text-green-600 text-center">{msg}</div>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block font-medium">Name</label>
-          <input name="name" value={form.name} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
-        </div>
-        <div>
-          <label className="block font-medium">Email</label>
-          <input name="email" value={form.email} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
-        </div>
-        {user?.role === "student" && (
-          <div>
-            <label className="block font-medium">Roll No</label>
-            <input name="rollno" value={form.rollno || ""} onChange={handleChange} className="w-full border rounded px-3 py-2" />
-          </div>
-        )}
-        {(user?.role === "faculty" || user?.role === "admin") && (
-          <div>
-            <label className="block font-medium">Employee ID</label>
-            <input name="empid" value={form.empid || ""} onChange={handleChange} className="w-full border rounded px-3 py-2" />
-          </div>
-        )}
-        <div>
-          <label className="block font-medium">Department</label>
-          <input name="department" value={form.department || ""} onChange={handleChange} className="w-full border rounded px-3 py-2" />
-        </div>
-        <div>
-          <label className="block font-medium">Change Password</label>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full border rounded px-3 py-2" placeholder="Leave blank to keep current" />
-        </div>
-        <button type="submit" className="w-full py-3 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700">Update Profile</button>
-      </form>
     </div>
   );
 }
