@@ -58,8 +58,8 @@ router.get('/teachers', async (req, res) => {
 });
 router.post('/teachers', async (req, res) => {
   const { name, email, password, empid, department } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
-  const user = new User({ name, email, password: hashed, empid, department, role: 'faculty' });
+  // Do NOT hash password here; let the pre-save hook handle it
+  const user = new User({ name, email, password, empid, department, role: 'faculty' });
   await user.save();
   await logAction(req.user.id, `Created teacher: ${user.name} (${user.email})`);
   res.json(user);
@@ -83,8 +83,8 @@ router.get('/students', async (req, res) => {
 });
 router.post('/students', async (req, res) => {
   const { name, email, password, rollno, department } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
-  const user = new User({ name, email, password: hashed, rollno, department, role: 'student' });
+  // Do NOT hash password here; let the pre-save hook handle it
+  const user = new User({ name, email, password, rollno, department, role: 'student' });
   await user.save();
   await logAction(req.user.id, `Created student: ${user.name} (${user.email})`);
   res.json(user);
